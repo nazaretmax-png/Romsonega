@@ -10,352 +10,147 @@
             --card: #1e293b;
             --accent: #38bdf8;
             --success: #10b981;
-            --error: #ef4444;
             --text: #f1f5f9;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1000px;
-        }
-
-        header {
-            text-align: center;
-            padding: 20px 0;
-        }
-
-        h1 { color: var(--accent); margin: 0; font-size: 1.5rem; }
-
-        /* Layout a Griglia */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-
-        @media (min-width: 768px) {
-            .main-grid { grid-template-columns: 350px 1fr; }
-        }
-
-        .card {
-            background: var(--card);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border: 1px solid #334155;
-        }
-
-        h3 { margin-top: 0; font-size: 1.1rem; color: #94a3b8; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-
-        /* Input e Bottoni */
-        input[type="file"], input[type="text"], select {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: 1px solid #475569;
-            background: #0f172a;
-            color: white;
-            box-sizing: border-box;
-            font-size: 16px; /* Evita zoom automatico su iPhone */
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            margin: 5px 0;
-            border-radius: 8px;
-            border: none;
-            background: var(--accent);
-            color: #0f172a;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        button:active { transform: scale(0.98); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .btn-secondary { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
-        .btn-success { background: var(--success); color: #0f172a; }
-
-        /* Barra di Progresso */
-        .progress-container {
-            margin: 15px 0;
-            background: #000;
-            border-radius: 10px;
-            height: 20px;
-            overflow: hidden;
-            display: none;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--success));
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        /* Area Anteprima */
-        .preview-container {
-            background: #000;
-            border-radius: 10px;
-            height: 400px;
-            overflow-y: auto;
-            border: 1px solid #334155;
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th { background: #1e293b; padding: 12px; text-align: left; position: sticky; top: 0; color: var(--accent); }
-        td { padding: 10px; border-bottom: 1px solid #1e293b; color: #cbd5e1; }
-        .offset-cell { color: #818cf8; font-weight: bold; }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            background: #334155;
-            margin-bottom: 10px;
-        }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 900px; }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px; }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; box-sizing: border-box; }
+        button { background: var(--accent); color: #0f172a; font-weight: bold; cursor: pointer; border: none; }
+        .btn-success { background: var(--success); }
+        .progress-container { margin: 15px 0; background: #000; border-radius: 10px; height: 15px; overflow: hidden; display: none; }
+        .progress-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
+        .preview { background: #000; height: 350px; overflow-y: auto; border: 1px solid #334155; border-radius: 8px; font-family: monospace; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1e293b; padding: 10px; text-align: left; position: sticky; top: 0; color: var(--accent); }
+        td { padding: 8px; border-bottom: 1px solid #1e293b; color: #cbd5e1; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>GBA Translator Pro 🚀</h1>
-            <div id="fileInfo" class="status-badge">Carica una ROM per iniziare</div>
-        </header>
+<div class="container">
+    <h1 style="color: var(--accent); text-align: center;">GBA Translator Pro 🚀</h1>
+    
+    <div class="card">
+        <h3>1. Carica ROM</h3>
+        <input type="file" id="romFile" accept=".gba">
+    </div>
 
-        <div class="main-grid">
-            <div class="controls">
-                <div class="card">
-                    <h3>1. Caricamento</h3>
-                    <input type="file" id="romFile" accept=".gba">
-                </div>
+    <div class="card">
+        <h3>2. Trova Offset (Anti-Matrix)</h3>
+        <input type="text" id="searchKeyword" placeholder="Cerca parola (es: POUND)">
+        <button onclick="deepSearch()">🔍 Trova Indirizzo</button>
+    </div>
 
-                <div class="card">
-                    <h3>2. Ricerca Intelligente</h3>
-                    <p style="font-size: 0.8rem; opacity: 0.7;">Inserisci una parola inglese (es: POUND o POTION) per trovare l'indirizzo esatto.</p>
-                    <input type="text" id="searchKeyword" placeholder="Parola da cercare...">
-                    <button onclick="deepSearch()">🔍 Trova Offset</button>
-                </div>
+    <div class="card">
+        <h3>3. Estrai e Scarica</h3>
+        <input type="text" id="startOffset" placeholder="Offset trovato (es: 0x31977C)">
+        <button id="scanBtn" onclick="startExtraction()">🛰️ Avvia Scansione</button>
+        <div class="progress-container" id="pContainer"><div class="progress-bar" id="pBar"></div></div>
+        <button style="background:none; border: 1px solid var(--accent); color:var(--accent)" onclick="exportToTxt()">💾 Scarica TXT</button>
+    </div>
 
-                <div class="card">
-                    <h3>3. Estrazione Testi</h3>
-                    <input type="text" id="startOffset" placeholder="Offset (es: 0x31977C)">
-                    <select id="filterLevel">
-                        <option value="strict">Filtro Rigido (Solo nomi puliti)</option>
-                        <option value="dialog">Filtro Dialoghi (Testi lunghi)</option>
-                    </select>
-                    <button id="scanBtn" onclick="startExtraction()">🛰️ Avvia Scansione</button>
-                    
-                    <div class="progress-container" id="pContainer">
-                        <div class="progress-bar" id="pBar"></div>
-                    </div>
-
-                    <button class="btn-secondary" onclick="exportToTxt()">💾 Scarica Traduzione (.txt)</button>
-                </div>
-
-                <div class="card">
-                    <h3>4. Applica Modifiche</h3>
-                    <input type="file" id="txtFile" accept=".txt">
-                    <button class="btn-success" onclick="patchRom()">⚡ Salva ROM Tradotta</button>
-                </div>
-            </div>
-
-            <div class="results">
-                <div class="card" style="padding: 0; overflow: hidden;">
-                    <div class="preview-container">
-                        <table>
-                            <thead>
-                                <tr><th>Offset</th><th>Testo Rilevato</th></tr>
-                            </thead>
-                            <tbody id="resBody">
-                                <tr><td colspan="2" style="text-align:center; padding:50px; opacity:0.5;">I risultati appariranno qui...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <div class="card">
+        <div class="preview">
+            <table>
+                <thead><tr><th>Offset</th><th>Testo</th></tr></thead>
+                <tbody id="resBody"></tbody>
+            </table>
         </div>
     </div>
 
+    <div class="card">
+        <h3>4. Applica Traduzione</h3>
+        <input type="file" id="txtFile" accept=".txt">
+        <button class="btn-success" onclick="patchRom()">⚡ Salva ROM ITA</button>
+    </div>
+</div>
+
 <script>
-    // Mappa caratteri ufficiale Pokémon GBA
     const charMap = { 0x00: ' ', 0x01: 'À', 0x02: 'Á', 0x03: 'Â', 0x04: 'Ç', 0x05: 'È', 0x06: 'É', 0x07: 'Ê', 0x08: 'Ë', 0x09: 'Ì', 0x0B: 'Î', 0x0C: 'Ï', 0x0D: 'Ò', 0x0E: 'Ó', 0x0F: 'Ô', 0x10: 'Œ', 0x11: 'Ù', 0x12: 'Ú', 0x13: 'Û', 0x14: 'Ÿ', 0x15: 'ß', 0x16: 'à', 0x17: 'á', 0x19: 'ç', 0x1A: 'è', 0x1B: 'é', 0x1C: 'ê', 0x1D: 'ë', 0x1E: 'ì', 0x20: 'î', 0x21: 'ï', 0x22: 'ò', 0x23: 'ó', 0x24: 'ô', 0x25: 'œ', 0x26: 'ù', 0x27: 'ú', 0x28: 'û', 0x29: 'ÿ', 0x2D: '&', 0x2E: '+', 0xAB: '!', 0xAC: '?', 0xAD: '.', 0xAE: '-', 0xB0: '...', 0xB8: ',', 0xBB: 'A', 0xBC: 'B', 0xBD: 'C', 0xBE: 'D', 0xBF: 'E', 0xC0: 'F', 0xC1: 'G', 0xC2: 'H', 0xC3: 'I', 0xC4: 'J', 0xC5: 'K', 0xC6: 'L', 0xC7: 'M', 0xC8: 'N', 0xC9: 'O', 0xCA: 'P', 0xCB: 'Q', 0xCC: 'R', 0xCD: 'S', 0xCE: 'T', 0xCF: 'U', 0xD0: 'V', 0xD1: 'W', 0xD2: 'X', 0xD3: 'Y', 0xD4: 'Z', 0xD5: 'a', 0xD6: 'b', 0xD7: 'c', 0xD8: 'd', 0xD9: 'e', 0xDA: 'f', 0xDB: 'g', 0xDC: 'h', 0xDD: 'i', 0xDE: 'j', 0xDF: 'k', 0xE0: 'l', 0xE1: 'm', 0xE2: 'n', 0xE3: 'o', 0xE4: 'p', 0xE5: 'q', 0xE6: 'r', 0xE7: 's', 0xE8: 't', 0xE9: 'u', 0xEA: 'v', 0xEB: 'w', 0xEC: 'x', 0xED: 'y', 0xEE: 'z', 0xFE: '\n' };
     const invMap = Object.fromEntries(Object.entries(charMap).map(([k,v]) => [v, parseInt(k)]));
+    let rom = null;
+    let data = [];
 
-    let romBuffer = null;
-    let extractedData = [];
-
-    // Caricamento File
     document.getElementById('romFile').onchange = function(e) {
         const reader = new FileReader();
-        reader.onload = function() {
-            romBuffer = new Uint8Array(reader.result);
-            document.getElementById('fileInfo').innerText = "✅ ROM Caricata (" + (romBuffer.length / 1024 / 1024).toFixed(1) + " MB)";
-            document.getElementById('fileInfo').style.background = "#064e3b";
-        };
+        reader.onload = () => rom = new Uint8Array(reader.result);
         reader.readAsArrayBuffer(this.files[0]);
     };
 
-    // Funzione Deep Search per trovare tabelle
     function deepSearch() {
-        if(!romBuffer) return alert("Carica prima la ROM!");
+        if(!rom) return alert("Carica la ROM!");
         const word = document.getElementById('searchKeyword').value.toUpperCase();
-        if(word.length < 3) return alert("Inserisci almeno 3 lettere.");
-
-        let searchBytes = [];
-        for(let char of word) {
-            if(invMap[char] === undefined) return alert("Carattere '" + char + "' non supportato.");
-            searchBytes.push(invMap[char]);
-        }
-
-        // Cerca i byte nella ROM
-        for(let i = 0; i < romBuffer.length - searchBytes.length; i++) {
-            let found = true;
-            for(let j = 0; j < searchBytes.length; j++) {
-                if(romBuffer[i+j] !== searchBytes[j]) { found = false; break; }
-            }
-            if(found) {
+        let bytes = [];
+        for(let c of word) bytes.push(invMap[c]);
+        for(let i=0; i<rom.length; i++) {
+            let match = true;
+            for(let j=0; j<bytes.length; j++) if(rom[i+j] !== bytes[j]) { match = false; break; }
+            if(match) {
                 const hex = "0x" + i.toString(16).toUpperCase();
                 document.getElementById('startOffset').value = hex;
-                alert("Tabella trovata all'offset: " + hex);
+                alert("Trovato! Offset: " + hex);
                 return;
             }
         }
-        alert("Parola non trovata. Prova con POUND, POTION o BULBASAUR.");
+        alert("Non trovato!");
     }
 
-    // Estrazione Testi
     function startExtraction() {
-        if(!romBuffer) return alert("Carica la ROM!");
-        const startHex = document.getElementById('startOffset').value;
-        let offset = startHex ? parseInt(startHex, 16) : 0x200000;
-        const mode = document.getElementById('filterLevel').value;
+        if(!rom) return;
         const body = document.getElementById('resBody');
         const pBar = document.getElementById('pBar');
-        const pContainer = document.getElementById('pContainer');
-
-        body.innerHTML = "";
-        extractedData = [];
-        pContainer.style.display = "block";
-        
-        let i = offset;
-        const step = 0x10000;
-
-        function processChunk() {
-            let limit = Math.min(i + step, romBuffer.length);
-            for(; i < limit; i++) {
-                // Pokémon GBA: i nomi solitamente iniziano con caratteri A-Z (0xBB-0xD4)
-                if(romBuffer[i] >= 0xBB && romBuffer[i] <= 0xD4) {
-                    let str = "";
-                    let j = i;
-                    let isClean = true;
-
-                    while(j < romBuffer.length && romBuffer[j] !== 0xFF && str.length < 300) {
-                        let b = romBuffer[j];
-                        if(charMap[b]) {
-                            str += charMap[b];
-                        } else {
-                            if(mode === 'strict') { isClean = false; break; }
-                            str += " ";
-                        }
+        const start = parseInt(document.getElementById('startOffset').value, 16) || 0x200000;
+        body.innerHTML = ""; data = [];
+        document.getElementById('pContainer').style.display = "block";
+        let i = start;
+        function chunk() {
+            let limit = Math.min(i + 0x10000, rom.length);
+            for(; i<limit; i++) {
+                if(rom[i] >= 0xBB && rom[i] <= 0xD4) {
+                    let s = "", j = i, clean = true;
+                    while(j < rom.length && rom[j] !== 0xFF && s.length < 100) {
+                        if(charMap[rom[j]]) s += charMap[rom[j]]; else { clean = false; break; }
                         j++;
                     }
-
-                    if(isClean && str.trim().length > (mode === 'strict' ? 2 : 10)) {
-                        const currentOff = "0x" + i.toString(16).toUpperCase();
-                        extractedData.push({o: currentOff, t: str});
-                        
-                        if(extractedData.length < 1000) {
-                            body.insertAdjacentHTML('beforeend', `<tr><td class="offset-cell">${currentOff}</td><td>${str}</td></tr>`);
-                        }
+                    if(clean && s.length > 2) {
+                        const off = "0x" + i.toString(16).toUpperCase();
+                        data.push({o:off, t:s});
+                        if(data.length < 500) body.insertAdjacentHTML('beforeend', `<tr><td>${off}</td><td>${s}</td></tr>`);
                         i = j;
                     }
                 }
             }
-
-            pBar.style.width = ((i / romBuffer.length) * 100) + "%";
-
-            if(i < romBuffer.length - 1) {
-                requestAnimationFrame(processChunk);
-            } else {
-                pBar.style.background = var(--success);
-                alert("Scansione completata! Trovate " + extractedData.length + " stringhe.");
-            }
+            pBar.style.width = (i/rom.length*100) + "%";
+            if(i < rom.length - 1) requestAnimationFrame(chunk);
+            else { pBar.style.background = "var(--success)"; alert("Fine!"); }
         }
-        processChunk();
+        chunk();
     }
 
     function exportToTxt() {
-        if(extractedData.length === 0) return alert("Nulla da esportare.");
-        let content = "--- GBA TRANSLATION FILE ---\n";
-        extractedData.forEach(item => {
-            content += `${item.o} | ${item.t}\n`;
-        });
-        const blob = new Blob([content], {type: 'text/plain'});
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = "Da_Tradurre.txt";
-        link.click();
+        let txt = "OFFSET | TESTO\n";
+        data.forEach(x => txt += `${x.o} | ${x.t}\n`);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([txt], {type:'text/plain'}));
+        a.download = "traduzione.txt"; a.click();
     }
 
     async function patchRom() {
         const file = document.getElementById('txtFile').files[0];
-        if(!file || !romBuffer) return alert("Carica sia la ROM che il file TXT tradotto.");
-
         const text = await file.text();
-        const lines = text.split('\n');
-        let count = 0;
-
-        lines.forEach(line => {
+        text.split('\n').forEach(line => {
             if(!line.includes('|')) return;
-            const [offStr, content] = line.split('|').map(s => s.trim());
-            const offset = parseInt(offStr, 16);
-            
-            // Trova lunghezza originale per non sovrascrivere dati vitali
-            let maxLen = 0;
-            while(romBuffer[offset + maxLen] !== 0xFF && maxLen < 500) maxLen++;
-
+            const [o, t] = line.split('|').map(s => s.trim());
+            const offset = parseInt(o, 16);
             let bytes = [];
-            for(let char of content) {
-                bytes.push(invMap[char] !== undefined ? invMap[char] : 0x00);
-            }
-
-            // Scrive i nuovi byte
-            for(let k = 0; k <= maxLen; k++) {
-                romBuffer[offset + k] = (k < bytes.length) ? bytes[k] : 0xFF;
-            }
-            romBuffer[offset + Math.min(bytes.length, maxLen)] = 0xFF; // Terminatore
-            count++;
+            for(let c of t) bytes.push(invMap[c] || 0x00);
+            for(let k=0; k<bytes.length; k++) rom[offset+k] = bytes[k];
+            rom[offset+bytes.length] = 0xFF;
         });
-
-        const blob = new Blob([romBuffer], {type: 'application/octet-stream'});
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = "Gioco_Tradotto_ITA.gba";
-        link.click();
-        alert("Patch applicata a " + count + " stringhe!");
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([rom], {type:'application/octet-stream'}));
+        a.download = "Pokemon_ITA.gba"; a.click();
     }
 </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GBA Ultra Translator</title>
+    <title>GBA Ultra Translator Pro</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -41,7 +41,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Header */
         .header {
             text-align: center;
             padding: 2rem 1rem;
@@ -65,7 +64,6 @@
             opacity: 0.9;
         }
 
-        /* Cards */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -100,7 +98,6 @@
             font-weight: 600;
         }
 
-        /* Inputs */
         input[type="file"], select, button {
             width: 100%;
             padding: 0.875rem 1rem;
@@ -147,7 +144,6 @@
             background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
         }
 
-        /* File Info */
         .file-info {
             margin-top: 0.75rem;
             padding: 0.75rem;
@@ -160,7 +156,6 @@
             gap: 0.5rem;
         }
 
-        /* Preview Box */
         .preview-container {
             margin-top: 1rem;
             border-radius: 1rem;
@@ -190,7 +185,6 @@
             overflow-x: auto;
         }
 
-        /* Custom Scrollbar */
         .preview-box::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -205,7 +199,6 @@
             border-radius: 4px;
         }
 
-        /* Table */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -251,7 +244,6 @@
             max-width: 500px;
         }
 
-        /* Log Box */
         .log-box {
             background: var(--bg-primary);
             border: 1px solid var(--border);
@@ -274,7 +266,6 @@
             border-radius: 3px;
         }
 
-        /* Loading Animation */
         .spinner {
             display: inline-block;
             width: 16px;
@@ -290,7 +281,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
             .header {
                 padding: 1.5rem 1rem;
@@ -315,7 +305,6 @@
             }
         }
 
-        /* Toast Notifications */
         .toast {
             position: fixed;
             bottom: 2rem;
@@ -343,8 +332,8 @@
 
 <div class="container">
     <div class="header">
-        <h1>🎮 GBA Ultra Translator</h1>
-        <p>Estrazione intelligente con filtri AI avanzati</p>
+        <h1>🎮 GBA Ultra Translator Pro</h1>
+        <p>Filtro estremo - Solo parole vere</p>
     </div>
 
     <div class="card">
@@ -360,11 +349,11 @@
     <div class="card">
         <div class="card-title">
             <span>🔍</span> Modalità Estrazione
-            <span class="badge" id="modeBadge">INTELLIGENTE</span>
+            <span class="badge" id="modeBadge">ESTREMO</span>
         </div>
         <select id="extractMode">
-            <option value="short">⚔️ Mosse/Oggetti/Nomi (Ultra-filtrato)</option>
-            <option value="dialogs">💬 Dialoghi (Solo testo umano vero)</option>
+            <option value="short">⚔️ Mosse/Oggetti (Solo parole complete)</option>
+            <option value="dialogs">💬 Dialoghi (Solo frasi umane)</option>
         </select>
         <button onclick="smartScan()">
             Avvia Scansione Ultra-Precisa
@@ -402,22 +391,46 @@
         </button>
     </div>
 
-    <div class="log-box" id="log">✅ Sistema pronto. In attesa di comandi...</div>
+    <div class="log-box" id="log">✅ Sistema pronto. Filtri estremi attivi...</div>
 </div>
 
 <script>
     const charMap = { 0x00: ' ', 0x01: 'À', 0x02: 'Á', 0x03: 'Â', 0x04: 'Ç', 0x05: 'È', 0x06: 'É', 0x07: 'Ê', 0x08: 'Ë', 0x09: 'Ì', 0x0B: 'Î', 0x0C: 'Ï', 0x0D: 'Ò', 0x0E: 'Ó', 0x0F: 'Ô', 0x10: 'Œ', 0x11: 'Ù', 0x12: 'Ú', 0x13: 'Û', 0x14: 'Ÿ', 0x15: 'ß', 0x16: 'à', 0x17: 'á', 0x19: 'ç', 0x1A: 'è', 0x1B: 'é', 0x1C: 'ê', 0x1D: 'ë', 0x1E: 'ì', 0x20: 'î', 0x21: 'ï', 0x22: 'ò', 0x23: 'ó', 0x24: 'ô', 0x25: 'œ', 0x26: 'ù', 0x27: 'ú', 0x28: 'û', 0x29: 'ÿ', 0x2D: '&', 0x2E: '+', 0xAB: '!', 0xAC: '?', 0xAD: '.', 0xAE: '-', 0xB0: '...', 0xB8: ',', 0xBB: 'A', 0xBC: 'B', 0xBD: 'C', 0xBE: 'D', 0xBF: 'E', 0xC0: 'F', 0xC1: 'G', 0xC2: 'H', 0xC3: 'I', 0xC4: 'J', 0xC5: 'K', 0xC6: 'L', 0xC7: 'M', 0xC8: 'N', 0xC9: 'O', 0xCA: 'P', 0xCB: 'Q', 0xCC: 'R', 0xCD: 'S', 0xCE: 'T', 0xCF: 'U', 0xD0: 'V', 0xD1: 'W', 0xD2: 'X', 0xD3: 'Y', 0xD4: 'Z', 0xD5: 'a', 0xD6: 'b', 0xD7: 'c', 0xD8: 'd', 0xD9: 'e', 0xDA: 'f', 0xDB: 'g', 0xDC: 'h', 0xDD: 'i', 0xDE: 'j', 0xDF: 'k', 0xE0: 'l', 0xE1: 'm', 0xE2: 'n', 0xE3: 'o', 0xE4: 'p', 0xE5: 'q', 0xE6: 'r', 0xE7: 's', 0xE8: 't', 0xE9: 'u', 0xEA: 'v', 0xEB: 'w', 0xEC: 'x', 0xED: 'y', 0xEE: 'z', 0xFA: '\\l', 0xFB: '\\p', 0xFD: '\\v', 0xFE: '\\n' };
     const invMap = Object.fromEntries(Object.entries(charMap).map(([k,v]) => [v, parseInt(k)]));
     
-    // SILLABE COMUNI IN ITALIANO/INGLESE PER RICONOSCERE PAROLE VERE
-    const commonSyllables = ['TI', 'TA', 'TO', 'TE', 'TU', 'CA', 'CO', 'CHE', 'CHI', 'SA', 'SO', 'SE', 'SI', 'SU', 
-                             'LA', 'LE', 'LI', 'LO', 'LU', 'MA', 'ME', 'MI', 'MO', 'MU', 'NA', 'NE', 'NI', 'NO', 
-                             'RA', 'RE', 'RI', 'RO', 'RU', 'PA', 'PE', 'PI', 'PO', 'PU', 'BA', 'BE', 'BI', 'BO',
-                             'DA', 'DE', 'DI', 'DO', 'DU', 'GI', 'GA', 'GO', 'GU', 'GE', 'FA', 'FI', 'FO', 'FE',
-                             'VA', 'VE', 'VI', 'VO', 'VU', 'ZA', 'ZE', 'ZI', 'ZO', 'ZU', 'ZZA', 'ZZO', 'ZZI',
-                             'TRA', 'TRE', 'TRI', 'TRO', 'PRE', 'PRA', 'PRO', 'STA', 'STO', 'STI', 'STE',
-                             'THE', 'ING', 'ION', 'TER', 'EST', 'FOR', 'TIO', 'ATI', 'ATE', 'ICA', 'ICO',
-                             'URA', 'URE', 'ORA', 'ORE', 'ORI', 'ERA', 'ERE', 'ERI', 'ARO', 'ARE', 'ARI'];
+    // SILLABE VALIDE (espanse)
+    const validSyllables = ['TI', 'TA', 'TO', 'TE', 'TU', 'CA', 'CO', 'CHE', 'CHI', 'SA', 'SO', 'SE', 'SI', 'SU', 
+                           'LA', 'LE', 'LI', 'LO', 'LU', 'MA', 'ME', 'MI', 'MO', 'MU', 'NA', 'NE', 'NI', 'NO', 
+                           'RA', 'RE', 'RI', 'RO', 'RU', 'PA', 'PE', 'PI', 'PO', 'PU', 'BA', 'BE', 'BI', 'BO',
+                           'DA', 'DE', 'DI', 'DO', 'DU', 'GI', 'GA', 'GO', 'GU', 'GE', 'FA', 'FI', 'FO', 'FE',
+                           'VA', 'VE', 'VI', 'VO', 'VU', 'ZA', 'ZE', 'ZI', 'ZO', 'ZU', 'ZZA', 'ZZO', 'ZZI',
+                           'TRA', 'TRE', 'TRI', 'TRO', 'PRE', 'PRA', 'PRO', 'STA', 'STO', 'STI', 'STE',
+                           'THE', 'ING', 'ION', 'TER', 'EST', 'FOR', 'TIO', 'ATI', 'ATE', 'ICA', 'ICO',
+                           'URA', 'URE', 'ORA', 'ORE', 'ORI', 'ERA', 'ERE', 'ERI', 'ARO', 'ARE', 'ARI',
+                           'CHA', 'CHO', 'CHU', 'GHA', 'GHE', 'GHI', 'GHO', 'GLI', 'GNA', 'GNE', 'GNI', 'GNO',
+                           'SCA', 'SCE', 'SCI', 'SCO', 'SCU', 'SHA', 'SHE', 'SHI', 'SHO', 'SPE', 'SPI', 'SPO',
+                           'QUA', 'QUE', 'QUI', 'QUO'];
+    
+    // VERSI/SUONI DA BLOCCARE (espanso)
+    const blockedSounds = ['HA', 'HE', 'HI', 'HO', 'HU', 'BA', 'BE', 'BI', 'BO', 'BU', 
+                          'RA', 'RE', 'RI', 'RO', 'RU', 'FO', 'FA', 'FU', 'FE', 'FI',
+                          'LA', 'LE', 'LI', 'LO', 'LU', 'WA', 'WE', 'WI', 'WO', 'WU',
+                          'YA', 'YE', 'YI', 'YO', 'YU', 'ZA', 'ZE', 'ZI', 'ZO', 'ZU',
+                          'HAHA', 'HOHO', 'HEHE', 'HIHI', 'BABA', 'BOBO', 'RARA', 'RORO',
+                          'WAWA', 'WOWO', 'YAYA', 'YOYO', 'GAGA', 'GOGO', 'CATT', 'MEO',
+                          'DU', 'TU', 'GU', 'NU', 'MU', 'SU', 'CU', 'PU'];
+    
+    // PAROLE POKEMON COMUNI (per accettare solo queste se corte)
+    const knownWords = ['ITEM', 'BALL', 'MEGA', 'MOVE', 'HOLD', 'BACK', 'EXIT', 'SURF', 'FIRE', 
+                       'AQUA', 'ROCK', 'LEAF', 'VOLT', 'BOLT', 'STAR', 'MOON', 'STONE', 'WATER',
+                       'GRASS', 'TOXIC', 'STEEL', 'BURN', 'FREEZE', 'SLEEP', 'DRAGON', 'GHOST',
+                       'FAIRY', 'FIGHT', 'GROUND', 'FLYING', 'POISON', 'NORMAL', 'PSYCHIC',
+                       'SUPER', 'HYPER', 'MAX', 'FULL', 'HEAL', 'CURE', 'FRESH', 'GUARD',
+                       'POTION', 'ELIXIR', 'ETHER', 'REVIVE', 'ESCAPE', 'ROPE', 'REPEL',
+                       'BADGE', 'CASE', 'BIKE', 'COIN', 'GOOD', 'GREAT', 'ULTRA', 'MASTER',
+                       'SAFARI', 'LEVEL', 'LUXURY', 'NEST', 'NET', 'DIVE', 'TIMER', 'REPEAT',
+                       'PREMIER', 'DUSK', 'QUICK', 'HEAL', 'ATTACK', 'DEFENSE', 'SPECIAL',
+                       'SPEED', 'ACCURACY', 'EVASION', 'CRITICAL'];
     
     let rom = null;
     let scanResults = [];
@@ -450,9 +463,17 @@
         reader.readAsArrayBuffer(this.files[0]);
     };
 
-    function hasSyllable(str) {
+    function countSyllables(str) {
         str = str.toUpperCase();
-        return commonSyllables.some(syl => str.includes(syl));
+        let count = 0;
+        for (let syl of validSyllables) {
+            let pos = 0;
+            while ((pos = str.indexOf(syl, pos)) !== -1) {
+                count++;
+                pos += syl.length;
+            }
+        }
+        return count;
     }
 
     function isValidText(str, mode) {
@@ -460,15 +481,16 @@
 
         if (mode === 'dialogs') {
             // LUNGHEZZA MINIMA
-            if (str.length < 15) return false;
+            if (str.length < 20) return false; // Aumentato da 15 a 20
             
             // DEVE AVERE MARCATORI DI DIALOGO
             if (!str.includes('\\n') && !str.includes('\\p') && !str.includes('\\l')) return false;
             
-            // ANTI-RIPETIZIONI FOLLI: Blocca "RRRRR", "iiiii", "KKRRKRR"
-            if (/(.)\1{4,}/i.test(str)) return false;
+            // ANTI-RIPETIZIONI PATTERN: Blocca "RURRMIRRMURIRR", "RRRRR"
+            if (/(.{2,4})\1{2,}/i.test(str)) return false; // Pattern ripetuto 3+ volte
+            if (/(.)\1{4,}/i.test(str)) return false; // 5+ lettere uguali
             
-            // ANTI-SEQUENZE ALFABETICHE: "JLNPRTVXZ", "ABCDEFGH"
+            // ANTI-SEQUENZE ALFABETICHE
             const alphaParts = str.match(/[A-Z]+/gi) || [];
             for (let part of alphaParts) {
                 if (part.length >= 5) {
@@ -480,37 +502,42 @@
                             break;
                         }
                     }
-                    if (isSequence) return false; // È una sequenza alfabetica
+                    if (isSequence) return false;
                 }
             }
             
-            // REGOLA "TESTO UMANO": Deve avere spazi
+            // REGOLA SPAZI: Deve avere almeno 3 spazi
             const spaceCount = (str.match(/ /g) || []).length;
-            if (str.length > 25 && spaceCount < 2) return false;
+            if (str.length > 25 && spaceCount < 3) return false;
             
-            // ANTI-ENCODING CORROTTO
+            // ANTI-ENCODING CORROTTO (più restrittivo)
             const accentCount = (str.match(/[À-ÿ]/g) || []).length;
             const normalLetters = (str.match(/[A-Za-z]/g) || []).length;
-            if (normalLetters > 0 && accentCount > normalLetters * 0.3) return false;
+            if (normalLetters > 0 && accentCount > normalLetters * 0.2) return false; // 30% -> 20%
             
             // ANTI-GLITCH PATTERN
             if (/[À-ÿ]{2,}/.test(str)) return false;
             if (/[ËÃ]{2,}/.test(str)) return false;
+            if (/[Ã]["\w]{1,2}/g.test(str)) return false; // Pattern tipo "Ã""
             
-            // DEVE AVERE PAROLE VERE (con sillabe)
+            // DEVE AVERE ALMENO 3 PAROLE VERE
             const words = str.split(/[\s\\]/);
-            const hasRealWord = words.some(w => w.length >= 4 && /^[A-Za-z]+$/.test(w) && hasSyllable(w));
-            if (!hasRealWord) return false;
+            const realWords = words.filter(w => w.length >= 4 && /^[A-Za-z]+$/.test(w) && countSyllables(w) >= 1);
+            if (realWords.length < 3) return false;
             
-            // ANTI-PATTERN GRAFICI: troppi caratteri maiuscoli consecutivi
-            if (/[A-Z]{15,}/.test(str)) return false;
+            // ANTI-PATTERN GRAFICI
+            if (/[A-Z]{20,}/.test(str)) return false;
+            
+            // DEVE AVERE VOCALI DISTRIBUITE
+            const vowelCount = (str.match(/[AEIOUaeiou]/g) || []).length;
+            if (normalLetters > 0 && vowelCount < normalLetters * 0.25) return false;
             
             return true;
         }
 
         if (mode === 'short') {
-            // LUNGHEZZA
-            if (str.length < 3 || str.length > 18) return false;
+            // LUNGHEZZA: Min 4, Max 18
+            if (str.length < 4 || str.length > 18) return false;
             
             // MAIUSCOLO PURO
             if (str !== str.toUpperCase()) return false;
@@ -518,22 +545,30 @@
             // NO MARCATORI
             if (str.includes('\\')) return false;
             
-            // NO SPAZI MULTIPLI
-            if (/  +/.test(str)) return false;
+            // NO SPAZI MULTIPLI O SPAZI STRANI
+            if (/  +/.test(str) || str.startsWith(' ') || str.endsWith(' ')) return false;
             
             // SOLO CARATTERI VALIDI
             if (/[^A-Z0-9 \.\!\?\-']/.test(str)) return false;
             
+            // BLOCCA VERSI/SUONI
+            const cleanStr = str.replace(/[^A-Z]/g, '');
+            if (blockedSounds.includes(cleanStr)) return false;
+            if (str.split(' ').some(word => blockedSounds.includes(word))) return false;
+            
             // VOCALI OBBLIGATORIE
             if (!/[AEIOU]/.test(str)) return false;
             
-            // ANTI-RIPETIZIONE: Max 2 lettere uguali consecutive
-            if (/(.)\1{2,}/.test(str)) return false;
+            // ANTI-RIPETIZIONE: Max 1 lettera uguale consecutiva
+            if (/(.)\1{1,}/.test(str.replace(/[^A-Z]/g, ''))) return false;
             
-            // DENSITÀ VOCALE
+            // DENSITÀ VOCALE: Almeno 30%
             const vowels = (str.match(/[AEIOU]/g) || []).length;
             const letters = (str.match(/[A-Z]/g) || []).length;
-            if (letters > 2 && vowels < letters / 4) return false;
+            if (letters > 0 && vowels < letters * 0.30) return false;
+            
+            // CONSONANTI CONSECUTIVE: Max 3
+            if (/[BCDFGHJKLMNPQRSTVWXYZ]{4,}/.test(str)) return false;
             
             // ANTI-SEQUENZE ALFABETICHE
             for (let i = 0; i < str.length - 2; i++) {
@@ -543,15 +578,21 @@
                 if (c2 === c1 + 1 && c3 === c2 + 1) return false;
             }
             
-            // SILLABA REALE: La parola deve contenere almeno UNA sillaba comune
-            if (!hasSyllable(str)) return false;
-            
-            // ANTI-NONSENSE: Le parole troppo corte devono essere conosciute
-            if (str.length <= 4) {
-                const shortWords = ['ITEM', 'BALL', 'MEGA', 'MOVE', 'HOLD', 'BACK', 'EXIT', 'SURF', 'FIRE', 'AQUA', 'ROCK', 'LEAF', 'VOLT'];
-                const hasSpace = str.includes(' ');
-                if (!hasSpace && !shortWords.includes(str) && !hasSyllable(str)) return false;
+            // SILLABE: Deve avere ALMENO 2 sillabe valide
+            const syllableCount = countSyllables(str);
+            if (syllableCount < 2) {
+                // Eccezione: parole conosciute
+                if (!knownWords.includes(str.replace(/[^A-Z]/g, ''))) {
+                    return false;
+                }
             }
+            
+            // ANTI-PATTERN STRANI: Non troppe lettere rare
+            const rareLetters = (str.match(/[QXZJKW]/g) || []).length;
+            if (rareLetters > letters * 0.4) return false; // Max 40% di lettere rare
+            
+            // NO SOLO NUMERI O PUNTI
+            if (/^[0-9\.\-\s]+$/.test(str)) return false;
             
             return true;
         }
@@ -570,7 +611,7 @@
         scanResults = [];
         uniqueStrings.clear();
         
-        log(`🔍 Scansione ${mode === 'short' ? 'Mosse/Oggetti' : 'Dialoghi'} avviata...`);
+        log(`🔍 Scansione ${mode === 'short' ? 'Mosse/Oggetti' : 'Dialoghi'} avviata (filtro ESTREMO)...`);
 
         let i = 0x200000;
         let count = 0;
@@ -609,7 +650,7 @@
             if(i < rom.length - 1) {
                 requestAnimationFrame(doScan);
             } else {
-                log(`✅ Scansione completata: ${count} stringhe valide, ${rejected} filtrate`, 'success');
+                log(`✅ Scansione completata: ${count} stringhe valide, ${rejected} rigettate`, 'success');
                 showToast(`Trovate ${count} stringhe valide!`, 'success');
             }
         }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GBA Ultra Translator Pro</title>
+    <title>GBA Ultra Translator Pro - Final</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -15,6 +15,7 @@
             --accent-hover: #4f46e5;
             --success: #10b981;
             --danger: #ef4444;
+            --warning: #f59e0b;
             --text-primary: #e2e8f0;
             --text-secondary: #94a3b8;
             --border: #2d3651;
@@ -125,13 +126,18 @@
             box-shadow: 0 4px 15px var(--shadow);
         }
 
-        button:hover {
+        button:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
         }
 
-        button:active {
+        button:active:not(:disabled) {
             transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .btn-secondary {
@@ -249,7 +255,7 @@
             border: 1px solid var(--border);
             border-radius: 0.75rem;
             padding: 1rem;
-            height: 120px;
+            height: 150px;
             overflow-y: auto;
             font-family: 'Fira Code', monospace;
             font-size: 0.8rem;
@@ -265,6 +271,10 @@
             background: var(--accent);
             border-radius: 3px;
         }
+
+        .log-success { color: var(--success); }
+        .log-error { color: var(--danger); }
+        .log-warning { color: var(--warning); }
 
         .spinner {
             display: inline-block;
@@ -326,6 +336,26 @@
 
         .toast.success { border-left: 4px solid var(--success); }
         .toast.error { border-left: 4px solid var(--danger); }
+        .toast.warning { border-left: 4px solid var(--warning); }
+
+        .patch-report {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            border-left: 4px solid var(--success);
+        }
+
+        .report-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .report-item:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -333,7 +363,7 @@
 <div class="container">
     <div class="header">
         <h1>🎮 GBA Ultra Translator Pro</h1>
-        <p>Filtro estremo - Solo parole vere</p>
+        <p>Validazione sicura + Filtri estremi</p>
     </div>
 
     <div class="card">
@@ -349,11 +379,11 @@
     <div class="card">
         <div class="card-title">
             <span>🔍</span> Modalità Estrazione
-            <span class="badge" id="modeBadge">ESTREMO</span>
+            <span class="badge">ULTRA</span>
         </div>
         <select id="extractMode">
             <option value="short">⚔️ Mosse/Oggetti (Solo parole complete)</option>
-            <option value="dialogs">💬 Dialoghi (Solo frasi umane)</option>
+            <option value="dialogs">💬 Dialoghi (Solo frasi umane verificate)</option>
         </select>
         <button onclick="smartScan()">
             Avvia Scansione Ultra-Precisa
@@ -383,22 +413,22 @@
 
     <div class="card">
         <div class="card-title">
-            <span>⚡</span> Applica Traduzione
+            <span>⚡</span> Applica Traduzione (Sistema Sicuro)
         </div>
         <input type="file" id="txtFile" accept=".txt">
-        <button class="btn-success" onclick="applyPatch()">
-            Patchare ROM Tradotta
+        <button class="btn-success" onclick="applyPatch()" id="patchBtn">
+            Patchare ROM con Validazione
         </button>
+        <div id="patchReport"></div>
     </div>
 
-    <div class="log-box" id="log">✅ Sistema pronto. Filtri estremi attivi...</div>
+    <div class="log-box" id="log">✅ Sistema pronto. Filtri estremi e validazione sicura attivi...</div>
 </div>
 
 <script>
     const charMap = { 0x00: ' ', 0x01: 'À', 0x02: 'Á', 0x03: 'Â', 0x04: 'Ç', 0x05: 'È', 0x06: 'É', 0x07: 'Ê', 0x08: 'Ë', 0x09: 'Ì', 0x0B: 'Î', 0x0C: 'Ï', 0x0D: 'Ò', 0x0E: 'Ó', 0x0F: 'Ô', 0x10: 'Œ', 0x11: 'Ù', 0x12: 'Ú', 0x13: 'Û', 0x14: 'Ÿ', 0x15: 'ß', 0x16: 'à', 0x17: 'á', 0x19: 'ç', 0x1A: 'è', 0x1B: 'é', 0x1C: 'ê', 0x1D: 'ë', 0x1E: 'ì', 0x20: 'î', 0x21: 'ï', 0x22: 'ò', 0x23: 'ó', 0x24: 'ô', 0x25: 'œ', 0x26: 'ù', 0x27: 'ú', 0x28: 'û', 0x29: 'ÿ', 0x2D: '&', 0x2E: '+', 0xAB: '!', 0xAC: '?', 0xAD: '.', 0xAE: '-', 0xB0: '...', 0xB8: ',', 0xBB: 'A', 0xBC: 'B', 0xBD: 'C', 0xBE: 'D', 0xBF: 'E', 0xC0: 'F', 0xC1: 'G', 0xC2: 'H', 0xC3: 'I', 0xC4: 'J', 0xC5: 'K', 0xC6: 'L', 0xC7: 'M', 0xC8: 'N', 0xC9: 'O', 0xCA: 'P', 0xCB: 'Q', 0xCC: 'R', 0xCD: 'S', 0xCE: 'T', 0xCF: 'U', 0xD0: 'V', 0xD1: 'W', 0xD2: 'X', 0xD3: 'Y', 0xD4: 'Z', 0xD5: 'a', 0xD6: 'b', 0xD7: 'c', 0xD8: 'd', 0xD9: 'e', 0xDA: 'f', 0xDB: 'g', 0xDC: 'h', 0xDD: 'i', 0xDE: 'j', 0xDF: 'k', 0xE0: 'l', 0xE1: 'm', 0xE2: 'n', 0xE3: 'o', 0xE4: 'p', 0xE5: 'q', 0xE6: 'r', 0xE7: 's', 0xE8: 't', 0xE9: 'u', 0xEA: 'v', 0xEB: 'w', 0xEC: 'x', 0xED: 'y', 0xEE: 'z', 0xFA: '\\l', 0xFB: '\\p', 0xFD: '\\v', 0xFE: '\\n' };
     const invMap = Object.fromEntries(Object.entries(charMap).map(([k,v]) => [v, parseInt(k)]));
     
-    // SILLABE VALIDE (espanse)
     const validSyllables = ['TI', 'TA', 'TO', 'TE', 'TU', 'CA', 'CO', 'CHE', 'CHI', 'SA', 'SO', 'SE', 'SI', 'SU', 
                            'LA', 'LE', 'LI', 'LO', 'LU', 'MA', 'ME', 'MI', 'MO', 'MU', 'NA', 'NE', 'NI', 'NO', 
                            'RA', 'RE', 'RI', 'RO', 'RU', 'PA', 'PE', 'PI', 'PO', 'PU', 'BA', 'BE', 'BI', 'BO',
@@ -411,7 +441,6 @@
                            'SCA', 'SCE', 'SCI', 'SCO', 'SCU', 'SHA', 'SHE', 'SHI', 'SHO', 'SPE', 'SPI', 'SPO',
                            'QUA', 'QUE', 'QUI', 'QUO'];
     
-    // VERSI/SUONI DA BLOCCARE (espanso)
     const blockedSounds = ['HA', 'HE', 'HI', 'HO', 'HU', 'BA', 'BE', 'BI', 'BO', 'BU', 
                           'RA', 'RE', 'RI', 'RO', 'RU', 'FO', 'FA', 'FU', 'FE', 'FI',
                           'LA', 'LE', 'LI', 'LO', 'LU', 'WA', 'WE', 'WI', 'WO', 'WU',
@@ -420,7 +449,6 @@
                           'WAWA', 'WOWO', 'YAYA', 'YOYO', 'GAGA', 'GOGO', 'CATT', 'MEO',
                           'DU', 'TU', 'GU', 'NU', 'MU', 'SU', 'CU', 'PU'];
     
-    // PAROLE POKEMON COMUNI (per accettare solo queste se corte)
     const knownWords = ['ITEM', 'BALL', 'MEGA', 'MOVE', 'HOLD', 'BACK', 'EXIT', 'SURF', 'FIRE', 
                        'AQUA', 'ROCK', 'LEAF', 'VOLT', 'BOLT', 'STAR', 'MOON', 'STONE', 'WATER',
                        'GRASS', 'TOXIC', 'STEEL', 'BURN', 'FREEZE', 'SLEEP', 'DRAGON', 'GHOST',
@@ -438,8 +466,9 @@
 
     const log = (m, type = 'info') => {
         const l = document.getElementById('log');
-        const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '▶️';
-        l.innerHTML += `${icon} ${m}<br>`;
+        const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '▶️';
+        const className = type === 'success' ? 'log-success' : type === 'error' ? 'log-error' : type === 'warning' ? 'log-warning' : '';
+        l.innerHTML += `<span class="${className}">${icon} ${m}</span><br>`;
         l.scrollTop = l.scrollHeight;
     };
 
@@ -481,14 +510,17 @@
 
         if (mode === 'dialogs') {
             // LUNGHEZZA MINIMA
-            if (str.length < 20) return false; // Aumentato da 15 a 20
+            if (str.length < 25) return false; // Aumentato da 20 a 25
             
             // DEVE AVERE MARCATORI DI DIALOGO
             if (!str.includes('\\n') && !str.includes('\\p') && !str.includes('\\l')) return false;
             
-            // ANTI-RIPETIZIONI PATTERN: Blocca "RURRMIRRMURIRR", "RRRRR"
-            if (/(.{2,4})\1{2,}/i.test(str)) return false; // Pattern ripetuto 3+ volte
-            if (/(.)\1{4,}/i.test(str)) return false; // 5+ lettere uguali
+            // ANTI-RIPETIZIONI PATTERN ULTRA: Blocca pattern ripetuti
+            if (/(.{2,4})\1{2,}/i.test(str)) return false;
+            if (/(.)\1{3,}/i.test(str)) return false; // 4+ lettere uguali (era 5+)
+            
+            // ANTI-RIPETIZIONI TRIPLE: "AAA", "RRR", "EEE"
+            if (/([A-Z])\1{2,}/i.test(str)) return false;
             
             // ANTI-SEQUENZE ALFABETICHE
             const alphaParts = str.match(/[A-Z]+/gi) || [];
@@ -506,71 +538,64 @@
                 }
             }
             
-            // REGOLA SPAZI: Deve avere almeno 3 spazi
+            // REGOLA SPAZI: Deve avere almeno 4 spazi (era 3)
             const spaceCount = (str.match(/ /g) || []).length;
-            if (str.length > 25 && spaceCount < 3) return false;
+            if (str.length > 25 && spaceCount < 4) return false;
             
             // ANTI-ENCODING CORROTTO (più restrittivo)
             const accentCount = (str.match(/[À-ÿ]/g) || []).length;
             const normalLetters = (str.match(/[A-Za-z]/g) || []).length;
-            if (normalLetters > 0 && accentCount > normalLetters * 0.2) return false; // 30% -> 20%
+            if (normalLetters > 0 && accentCount > normalLetters * 0.15) return false; // 20% -> 15%
             
-            // ANTI-GLITCH PATTERN
+            // ANTI-GLITCH PATTERN POTENZIATO
             if (/[À-ÿ]{2,}/.test(str)) return false;
             if (/[ËÃ]{2,}/.test(str)) return false;
-            if (/[Ã]["\w]{1,2}/g.test(str)) return false; // Pattern tipo "Ã""
+            if (/Ã["\w]/.test(str)) return false; // Blocca pattern "Ã + carattere"
+            if (/[Å']["\w]/.test(str)) return false; // Blocca pattern "Å' + carattere"
+            if (/[Ã™Ã"Ã‚Ã‰Ã‹]/.test(str)) return false; // Blocca questi caratteri corrotti specifici
             
-            // DEVE AVERE ALMENO 3 PAROLE VERE
+            // DEVE AVERE ALMENO 4 PAROLE VERE (era 3)
             const words = str.split(/[\s\\]/);
             const realWords = words.filter(w => w.length >= 4 && /^[A-Za-z]+$/.test(w) && countSyllables(w) >= 1);
-            if (realWords.length < 3) return false;
+            if (realWords.length < 4) return false;
             
             // ANTI-PATTERN GRAFICI
-            if (/[A-Z]{20,}/.test(str)) return false;
+            if (/[A-Z]{18,}/.test(str)) return false; // 20 -> 18
             
-            // DEVE AVERE VOCALI DISTRIBUITE
+            // DEVE AVERE VOCALI DISTRIBUITE (più restrittivo)
             const vowelCount = (str.match(/[AEIOUaeiou]/g) || []).length;
-            if (normalLetters > 0 && vowelCount < normalLetters * 0.25) return false;
+            if (normalLetters > 0 && vowelCount < normalLetters * 0.30) return false; // 25% -> 30%
+            
+            // ANTI-CONSONANTI CONSECUTIVE ECCESSIVE
+            if (/[BCDFGHJKLMNPQRSTVWXYZ]{5,}/.test(str)) return false;
+            
+            // BLOCCA STRINGHE CON TROPPE MAIUSCOLE SINGOLE: "B A C D"
+            const singleCaps = str.match(/\b[A-Z]\b/g) || [];
+            if (singleCaps.length > 3) return false;
             
             return true;
         }
 
         if (mode === 'short') {
-            // LUNGHEZZA: Min 4, Max 18
             if (str.length < 4 || str.length > 18) return false;
-            
-            // MAIUSCOLO PURO
             if (str !== str.toUpperCase()) return false;
-            
-            // NO MARCATORI
             if (str.includes('\\')) return false;
-            
-            // NO SPAZI MULTIPLI O SPAZI STRANI
             if (/  +/.test(str) || str.startsWith(' ') || str.endsWith(' ')) return false;
-            
-            // SOLO CARATTERI VALIDI
             if (/[^A-Z0-9 \.\!\?\-']/.test(str)) return false;
             
-            // BLOCCA VERSI/SUONI
             const cleanStr = str.replace(/[^A-Z]/g, '');
             if (blockedSounds.includes(cleanStr)) return false;
             if (str.split(' ').some(word => blockedSounds.includes(word))) return false;
             
-            // VOCALI OBBLIGATORIE
             if (!/[AEIOU]/.test(str)) return false;
-            
-            // ANTI-RIPETIZIONE: Max 1 lettera uguale consecutiva
             if (/(.)\1{1,}/.test(str.replace(/[^A-Z]/g, ''))) return false;
             
-            // DENSITÀ VOCALE: Almeno 30%
             const vowels = (str.match(/[AEIOU]/g) || []).length;
             const letters = (str.match(/[A-Z]/g) || []).length;
             if (letters > 0 && vowels < letters * 0.30) return false;
             
-            // CONSONANTI CONSECUTIVE: Max 3
             if (/[BCDFGHJKLMNPQRSTVWXYZ]{4,}/.test(str)) return false;
             
-            // ANTI-SEQUENZE ALFABETICHE
             for (let i = 0; i < str.length - 2; i++) {
                 const c1 = str.charCodeAt(i);
                 const c2 = str.charCodeAt(i + 1);
@@ -578,20 +603,16 @@
                 if (c2 === c1 + 1 && c3 === c2 + 1) return false;
             }
             
-            // SILLABE: Deve avere ALMENO 2 sillabe valide
             const syllableCount = countSyllables(str);
             if (syllableCount < 2) {
-                // Eccezione: parole conosciute
                 if (!knownWords.includes(str.replace(/[^A-Z]/g, ''))) {
                     return false;
                 }
             }
             
-            // ANTI-PATTERN STRANI: Non troppe lettere rare
             const rareLetters = (str.match(/[QXZJKW]/g) || []).length;
-            if (rareLetters > letters * 0.4) return false; // Max 40% di lettere rare
+            if (rareLetters > letters * 0.4) return false;
             
-            // NO SOLO NUMERI O PUNTI
             if (/^[0-9\.\-\s]+$/.test(str)) return false;
             
             return true;
@@ -611,7 +632,7 @@
         scanResults = [];
         uniqueStrings.clear();
         
-        log(`🔍 Scansione ${mode === 'short' ? 'Mosse/Oggetti' : 'Dialoghi'} avviata (filtro ESTREMO)...`);
+        log(`🔍 Scansione ${mode === 'short' ? 'Mosse/Oggetti' : 'Dialoghi'} avviata (filtro ULTRA)...`);
 
         let i = 0x200000;
         let count = 0;
@@ -645,12 +666,12 @@
                 }
             }
             
-            document.getElementById('stats').textContent = `✅ Trovate: ${count} | 🚫 Filtrate: ${rejected}`;
+            document.getElementById('stats').textContent = `✅ Valide: ${count} | 🚫 Filtrate: ${rejected}`;
             
             if(i < rom.length - 1) {
                 requestAnimationFrame(doScan);
             } else {
-                log(`✅ Scansione completata: ${count} stringhe valide, ${rejected} rigettate`, 'success');
+                log(`✅ Scansione completata: ${count} stringhe valide, ${rejected} filtrate`, 'success');
                 showToast(`Trovate ${count} stringhe valide!`, 'success');
             }
         }
@@ -675,76 +696,230 @@
         showToast('File TXT scaricato!', 'success');
     }
 
+    // ============================================================
+    // SISTEMA DI PATCHING AVANZATO CON VALIDAZIONE COMPLETA
+    // ============================================================
+
+    function calculateByteLength(text) {
+        let byteCount = 0;
+        for (let i = 0; i < text.length; i++) {
+            if (text[i] === '\\' && text[i + 1]) {
+                const code = text[i] + text[i + 1];
+                if (code === '\\v' && /\d/.test(text[i + 2])) {
+                    byteCount += 2; // \v01 = 2 bytes (0xFD + ID)
+                    i += 2;
+                } else if (invMap[code] !== undefined) {
+                    byteCount += 1;
+                    i++;
+                } else {
+                    byteCount += 1;
+                }
+            } else {
+                byteCount += 1;
+            }
+        }
+        byteCount += 1; // Terminatore 0xFF
+        return byteCount;
+    }
+
+    function textToBytes(text) {
+        let bytes = [];
+        for (let k = 0; k < text.length; k++) {
+            if (text[k] === '\\' && text[k + 1]) {
+                let code = text[k] + text[k + 1];
+                if (invMap[code] !== undefined) {
+                    bytes.push(invMap[code]);
+                    k++;
+                    continue;
+                }
+            }
+            bytes.push(invMap[text[k]] !== undefined ? invMap[text[k]] : 0x00);
+        }
+        bytes.push(0xFF); // Terminatore
+        return bytes;
+    }
+
     function findFreeSpace(needed) {
         let count = 0;
-        for(let i = rom.length - 1; i > 0x800000; i--) {
-            if(rom[i] === 0xFF) count++; else count = 0;
-            if(count === needed + 10) return i + 5;
+        for (let i = rom.length - 1; i > 0x800000; i--) {
+            if (rom[i] === 0xFF) {
+                count++;
+            } else {
+                count = 0;
+            }
+            if (count >= needed + 10) {
+                return i + 5;
+            }
         }
         return -1;
     }
 
-    function repoint(oldOff, newOff) {
-        let oldPtr = new Uint8Array([oldOff & 0xFF, (oldOff >> 8) & 0xFF, (oldOff >> 16) & 0xFF, 0x08]);
-        let newPtr = new Uint8Array([newOff & 0xFF, (newOff >> 8) & 0xFF, (newOff >> 16) & 0xFF, 0x08]);
-        let found = 0;
-        for(let i = 0; i < rom.length - 4; i++) {
-            if(rom[i] === oldPtr[0] && rom[i+1] === oldPtr[1] && rom[i+2] === oldPtr[2] && rom[i+3] === oldPtr[3]) {
+    function createPointer(offset) {
+        return new Uint8Array([
+            offset & 0xFF,
+            (offset >> 8) & 0xFF,
+            (offset >> 16) & 0xFF,
+            0x08
+        ]);
+    }
+
+    function repointPointers(oldOffset, newOffset) {
+        const oldPtr = createPointer(oldOffset);
+        const newPtr = createPointer(newOffset);
+        let foundCount = 0;
+
+        for (let i = 0; i < rom.length - 4; i++) {
+            if (rom[i] === oldPtr[0] && 
+                rom[i + 1] === oldPtr[1] && 
+                rom[i + 2] === oldPtr[2] && 
+                rom[i + 3] === oldPtr[3]) {
                 rom.set(newPtr, i);
-                found++;
+                foundCount++;
             }
         }
-        return found;
+        return foundCount;
     }
 
     async function applyPatch() {
         const file = document.getElementById('txtFile').files[0];
-        if(!file || !rom) {
-            showToast('Manca la ROM o il TXT!', 'error');
+        if (!file || !rom) {
+            showToast('Manca la ROM o il file TXT!', 'error');
             return;
         }
-        
+
+        const btn = document.getElementById('patchBtn');
+        btn.disabled = true;
+        btn.textContent = 'Patching in corso...';
+
         const lines = (await file.text()).split('\n');
-        let d = 0, r = 0;
-        log("⚡ Patching in corso...");
-
-        lines.forEach(line => {
-            if(!line.includes('|') || line.startsWith('OFFSET')) return;
-            const [oStr, bStr, text] = line.split('|').map(s => s.trim());
-            const oldOff = parseInt(oStr, 16);
-            const maxB = parseInt(bStr);
-
-            let bytes = [];
-            for(let k=0; k<text.length; k++) {
-                if(text[k] === '\\' && text[k+1]) {
-                    let code = text[k] + text[k+1];
-                    if(invMap[code] !== undefined) { bytes.push(invMap[code]); k++; continue; }
-                }
-                bytes.push(invMap[text[k]] !== undefined ? invMap[text[k]] : 0x00);
-            }
-            bytes.push(0xFF);
-
-            if(bytes.length <= maxB + 1) {
-                rom.set(bytes, oldOff);
-                d++;
-            } else {
-                let newOff = findFreeSpace(bytes.length);
-                if(newOff !== -1) {
-                    rom.set(bytes, newOff); 
-                    repoint(oldOff, newOff);
-                    r++;
-                }
-            }
-        });
-
-        log(`✅ Patch applicata! Sovrascritte: ${d} | Riposizionate: ${r}`, 'success');
         
+        let stats = {
+            total: 0,
+            overwritten: 0,
+            repointed: 0,
+            failed: 0,
+            protected: 0,
+            errors: []
+        };
+
+        log('⚡ Avvio patching con validazione sicura...', 'info');
+
+        for (let line of lines) {
+            if (!line.includes('|') || line.startsWith('OFFSET')) continue;
+            
+            const parts = line.split('|').map(s => s.trim());
+            if (parts.length < 3) continue;
+
+            const [offsetStr, maxByteStr, text] = parts;
+            const oldOffset = parseInt(offsetStr, 16);
+            const maxBytes = parseInt(maxByteStr);
+
+            // PROTEZIONE HEADER
+            if (oldOffset < 0x200000) {
+                stats.protected++;
+                log(`⚠️ PROTETTO: ${offsetStr} (area critica)`, 'warning');
+                stats.errors.push(`${offsetStr}: Area protetta`);
+                continue;
+            }
+
+            stats.total++;
+
+            // CALCOLA LUNGHEZZA REALE
+            const newBytes = textToBytes(text);
+            const newLength = newBytes.length;
+
+            try {
+                if (newLength <= maxBytes + 1) {
+                    // SOVRASCRIVI IN LOCO
+                    rom.set(newBytes, oldOffset);
+                    
+                    // RIEMPI SPAZIO RIMANENTE CON 0xFF
+                    const remaining = (maxBytes + 1) - newLength;
+                    if (remaining > 0) {
+                        const fillBytes = new Uint8Array(remaining).fill(0xFF);
+                        rom.set(fillBytes, oldOffset + newLength);
+                    }
+                    
+                    stats.overwritten++;
+                } else {
+                    // REPOINTING NECESSARIO
+                    const newOffset = findFreeSpace(newLength);
+                    
+                    if (newOffset === -1) {
+                        stats.failed++;
+                        log(`❌ ERRORE: ${offsetStr} - Spazio insufficiente (${newLength} bytes)`, 'error');
+                        stats.errors.push(`${offsetStr}: Spazio insufficiente`);
+                        continue;
+                    }
+
+                    // Scrivi nel nuovo spazio
+                    rom.set(newBytes, newOffset);
+                    
+                    // Aggiorna puntatori
+                    const ptrCount = repointPointers(oldOffset, newOffset);
+                    
+                    if (ptrCount > 0) {
+                        stats.repointed++;
+                        log(`🔀 REPOINT: ${offsetStr} → 0x${newOffset.toString(16).toUpperCase()} (${ptrCount} puntatori)`, 'success');
+                    } else {
+                        log(`⚠️ WARNING: ${offsetStr} repointed ma nessun puntatore trovato`, 'warning');
+                        stats.repointed++;
+                    }
+                }
+            } catch (error) {
+                stats.failed++;
+                log(`❌ ERRORE: ${offsetStr} - ${error.message}`, 'error');
+                stats.errors.push(`${offsetStr}: ${error.message}`);
+            }
+        }
+
+        // REPORT FINALE
+        const reportHtml = `
+            <div class="patch-report">
+                <h3 style="color: var(--success); margin-bottom: 1rem;">📊 Report Patching</h3>
+                <div class="report-item">
+                    <span>Stringhe totali:</span>
+                    <strong>${stats.total}</strong>
+                </div>
+                <div class="report-item">
+                    <span>✅ Sovrascritte in loco:</span>
+                    <strong style="color: var(--success)">${stats.overwritten}</strong>
+                </div>
+                <div class="report-item">
+                    <span>🔀 Riposizionate (repoint):</span>
+                    <strong style="color: var(--accent)">${stats.repointed}</strong>
+                </div>
+                <div class="report-item">
+                    <span>🛡️ Protette (header):</span>
+                    <strong style="color: var(--warning)">${stats.protected}</strong>
+                </div>
+                <div class="report-item">
+                    <span>❌ Fallite:</span>
+                    <strong style="color: var(--danger)">${stats.failed}</strong>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('patchReport').innerHTML = reportHtml;
+
+        log('✅ Patching completato!', 'success');
+        log(`📈 Successo: ${stats.overwritten + stats.repointed}/${stats.total}`, 'success');
+        
+        if (stats.failed > 0) {
+            log(`⚠️ ${stats.failed} stringhe fallite per spazio insufficiente`, 'warning');
+        }
+
+        // DOWNLOAD ROM PATCHATA
+        const blob = new Blob([rom], { type: 'application/octet-stream' });
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([rom], {type:'application/octet-stream'}));
-        a.download = "Pokemon_Tradotto_ITA.gba";
+        a.href = URL.createObjectURL(blob);
+        a.download = 'Pokemon_Tradotto_SAFE.gba';
         a.click();
+
+        showToast('ROM patchata scaricata con successo!', 'success');
         
-        showToast('ROM patchata scaricata!', 'success');
+        btn.disabled = false;
+        btn.textContent = 'Patchare ROM con Validazione';
     }
 </script>
 </body>

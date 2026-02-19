@@ -3,330 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GBA Ultra Translator Pro - Final</title>
+    <title>GBA Translator Pro</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
-            --bg-primary: #0a0e27;
-            --bg-secondary: #151b38;
-            --bg-card: #1a2142;
+            --bg: #0a0e1a;
+            --card: #12182a;
             --accent: #6366f1;
-            --accent-hover: #4f46e5;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --border: #1f2937;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --text-primary: #e2e8f0;
-            --text-secondary: #94a3b8;
-            --border: #2d3651;
-            --shadow: rgba(99, 102, 241, 0.1);
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, #0f1629 100%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 1rem;
-            overflow-x: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
-            animation: fadeIn 0.6s ease-out;
+            padding: 0.75rem;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        /* Header minimalista */
         .header {
             text-align: center;
-            padding: 2rem 1rem;
-            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
-            border-radius: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 20px 60px var(--shadow);
+            padding: 1.5rem 0.75rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--accent);
         }
 
         .header h1 {
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(to right, #fff, #e2e8f0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: clamp(1.25rem, 5vw, 1.75rem);
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
         }
 
         .header p {
-            font-size: clamp(0.875rem, 2vw, 1rem);
-            opacity: 0.9;
+            font-size: 0.8rem;
+            color: var(--text-dim);
         }
 
-        .card {
-            background: var(--bg-card);
+        /* Sezioni compatte */
+        .section {
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 1rem;
-            padding: clamp(1rem, 3vw, 1.5rem);
-            margin-bottom: 1.5rem;
-            transition: transform 0.3s, box-shadow 0.3s;
+            border-radius: 0.5rem;
+            padding: 0.875rem;
+            margin-bottom: 0.75rem;
         }
 
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .card-title {
-            font-size: clamp(1.1rem, 2.5vw, 1.25rem);
-            font-weight: 700;
-            margin-bottom: 1rem;
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 600;
             color: var(--accent);
+            margin-bottom: 0.625rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.375rem;
         }
 
-        .badge {
-            display: inline-block;
-            background: var(--accent);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
+        /* Input minimalisti */
         input[type="file"], select, button {
             width: 100%;
-            padding: 0.875rem 1rem;
-            border-radius: 0.75rem;
-            border: 2px solid var(--border);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-size: clamp(0.875rem, 2vw, 1rem);
-            transition: all 0.3s;
+            padding: 0.625rem 0.75rem;
+            border-radius: 0.375rem;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.875rem;
             cursor: pointer;
-        }
-
-        input[type="file"]:hover, select:hover {
-            border-color: var(--accent);
-            background: var(--bg-card);
         }
 
         button {
             font-weight: 600;
+            background: var(--accent);
             border: none;
-            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
-            margin-top: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px var(--shadow);
+            margin-top: 0.5rem;
+            transition: opacity 0.2s;
         }
 
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
-        }
+        button:hover:not(:disabled) { opacity: 0.85; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        button:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
+        .btn-outline {
             background: transparent;
-            border: 2px solid var(--accent);
+            border: 1px solid var(--accent);
             color: var(--accent);
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        .btn-success { background: var(--success); }
+
+        /* Info compatta */
+        .info {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg);
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            color: var(--text-dim);
         }
 
-        .file-info {
-            margin-top: 0.75rem;
-            padding: 0.75rem;
-            background: var(--bg-secondary);
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .preview-container {
-            margin-top: 1rem;
-            border-radius: 1rem;
-            overflow: hidden;
+        /* Preview box minimalista */
+        .preview {
+            margin-top: 0.625rem;
             border: 1px solid var(--border);
-            background: var(--bg-primary);
+            border-radius: 0.375rem;
+            overflow: hidden;
+            background: var(--bg);
         }
 
         .preview-header {
-            background: var(--bg-secondary);
-            padding: 1rem;
+            background: var(--card);
+            padding: 0.5rem 0.75rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .preview-stats {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.75rem;
         }
 
         .preview-box {
-            height: clamp(300px, 40vh, 500px);
-            overflow-y: auto;
-            overflow-x: auto;
+            height: clamp(250px, 35vh, 400px);
+            overflow: auto;
         }
 
-        .preview-box::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
+        .preview-box::-webkit-scrollbar { width: 6px; height: 6px; }
+        .preview-box::-webkit-scrollbar-track { background: var(--bg); }
+        .preview-box::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
 
-        .preview-box::-webkit-scrollbar-track {
-            background: var(--bg-primary);
-        }
-
-        .preview-box::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 4px;
-        }
-
+        /* Tabella compatta */
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: clamp(0.75rem, 1.5vw, 0.875rem);
-            font-family: 'Fira Code', 'Courier New', monospace;
-        }
-
-        thead {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: var(--bg-card);
+            font-size: 0.75rem;
+            font-family: 'Courier New', monospace;
         }
 
         th {
-            padding: 1rem 0.75rem;
+            position: sticky;
+            top: 0;
+            background: var(--card);
+            padding: 0.5rem;
             text-align: left;
             font-weight: 600;
             color: var(--accent);
-            border-bottom: 2px solid var(--border);
-        }
-
-        td {
-            padding: 0.875rem 0.75rem;
             border-bottom: 1px solid var(--border);
         }
 
-        tbody tr {
-            transition: background 0.2s;
+        td {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        tbody tr:hover {
-            background: var(--bg-secondary);
+        tr:hover { background: var(--card); }
+
+        .hex { color: #a78bfa; font-weight: 600; }
+        .text-cell { word-break: break-word; }
+
+        /* Progress bar minimalista */
+        .progress {
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .progress.active { display: block; }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-bottom: 0.25rem;
         }
 
-        .hex {
-            color: #a78bfa;
-            font-weight: 700;
-        }
-
-        .text-cell {
-            word-break: break-word;
-            max-width: 500px;
-        }
-
-        .log-box {
-            background: var(--bg-primary);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            height: 150px;
-            overflow-y: auto;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        .log-box::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .log-box::-webkit-scrollbar-thumb {
-            background: var(--accent);
+        .progress-bar {
+            height: 6px;
+            background: var(--border);
             border-radius: 3px;
+            overflow: hidden;
         }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.2s;
+        }
+
+        .progress-status {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+
+        /* Log minimalista */
+        .log {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            height: 80px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        .log::-webkit-scrollbar { width: 4px; }
+        .log::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
 
         .log-success { color: var(--success); }
         .log-error { color: var(--danger); }
         .log-warning { color: var(--warning); }
 
-        .spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid transparent;
-            border-top-color: currentColor;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-left: 0.5rem;
+        /* Report compatto */
+        .report {
+            margin-top: 0.625rem;
+            padding: 0.75rem;
+            background: var(--bg);
+            border-radius: 0.375rem;
+            border-left: 3px solid var(--success);
+            font-size: 0.75rem;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .report-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
         }
 
-        @media (max-width: 768px) {
-            .header {
-                padding: 1.5rem 1rem;
-                border-radius: 1rem;
-            }
-
-            .card {
-                padding: 1rem;
-            }
-
-            th, td {
-                padding: 0.75rem 0.5rem;
-            }
-
-            .text-cell {
-                max-width: 200px;
-            }
-
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-        }
-
+        /* Toast minimalista */
         .toast {
             position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: var(--bg-card);
+            bottom: 1rem;
+            right: 1rem;
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 1rem 1.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            animation: slideIn 0.3s ease-out;
+            border-radius: 0.375rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
             max-width: 90vw;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: slideIn 0.3s;
         }
 
         @keyframes slideIn {
@@ -334,81 +263,61 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        .toast.success { border-left: 4px solid var(--success); }
-        .toast.error { border-left: 4px solid var(--danger); }
-        .toast.warning { border-left: 4px solid var(--warning); }
+        .toast.success { border-left: 3px solid var(--success); }
+        .toast.error { border-left: 3px solid var(--danger); }
+        .toast.warning { border-left: 3px solid var(--warning); }
 
-        .patch-report {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: var(--bg-secondary);
-            border-radius: 0.75rem;
-            border-left: 4px solid var(--success);
-        }
-
-        .report-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .report-item:last-child {
-            border-bottom: none;
-        }
-
-        /* PROGRESS BAR */
-        .progress-wrap {
-            margin-top: 1rem;
+        /* Dialog Resume */
+        .modal {
             display: none;
-        }
-        .progress-wrap.active { display: block; }
-
-        .progress-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.4rem;
-        }
-
-        .progress-track {
-            width: 100%;
-            height: 12px;
-            background: var(--bg-secondary);
-            border-radius: 999px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 0%;
-            border-radius: 999px;
-            background: linear-gradient(90deg, var(--accent), #8b5cf6);
-            transition: width 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
+            position: fixed;
+            top: 0; left: 0;
             width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-            animation: shimmer 1.5s infinite;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            max-width: 400px;
+            margin: 1rem;
         }
 
-        @keyframes shimmer {
-            to { left: 200%; }
-        }
-
-        .progress-phase {
-            font-size: 0.75rem;
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 600;
             color: var(--accent);
-            margin-top: 0.3rem;
-            font-style: italic;
+            margin-bottom: 0.75rem;
+        }
+
+        .modal-text {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .modal-actions button {
+            margin: 0;
+            flex: 1;
+        }
+
+        /* Mobile ottimizzato */
+        @media (max-width: 640px) {
+            .container { padding: 0.5rem; }
+            .section { padding: 0.625rem; }
+            th, td { padding: 0.375rem; font-size: 0.7rem; }
+            .text-cell { max-width: 150px; }
         }
     </style>
 </head>
@@ -416,157 +325,164 @@
 
 <div class="container">
     <div class="header">
-        <h1>🎮 GBA Ultra Translator Pro</h1>
-        <p>Validazione sicura + Filtri estremi</p>
+        <h1>🎮 GBA Translator Pro</h1>
+        <p>Filtri ultra + Autosave intelligente</p>
     </div>
 
-    <div class="card">
-        <div class="card-title">
-            <span>📁</span> Carica ROM
-        </div>
+    <!-- ROM -->
+    <div class="section">
+        <div class="section-title">📁 ROM</div>
         <input type="file" id="romFile" accept=".gba">
-        <div class="file-info" id="romInfo">
-            ⏳ In attesa di un file ROM...
-        </div>
+        <div class="info" id="romInfo">⏳ Carica un file .gba</div>
     </div>
 
-    <div class="card">
-        <div class="card-title">
-            <span>🔍</span> Modalità Estrazione
-            <span class="badge">ULTRA</span>
-        </div>
+    <!-- Scansione -->
+    <div class="section">
+        <div class="section-title">🔍 Estrazione</div>
         <select id="extractMode">
-            <option value="short">⚔️ Mosse/Oggetti (Solo parole complete)</option>
-            <option value="dialogs">💬 Dialoghi (Solo frasi umane verificate)</option>
+            <option value="short">⚔️ Mosse/Oggetti</option>
+            <option value="dialogs">💬 Dialoghi</option>
         </select>
-        <button onclick="smartScan()">
-            Avvia Scansione Ultra-Precisa
-        </button>
+        <button onclick="scan()">Scansiona ROM</button>
         
-        <!-- PROGRESS BAR SCANSIONE -->
-        <div class="progress-wrap" id="scanProgressWrap">
-            <div class="progress-label">
-                <span>Scansione ROM in corso...</span>
+        <div class="progress" id="scanProgress">
+            <div class="progress-info">
+                <span>Scansione...</span>
                 <span id="scanPct">0%</span>
             </div>
-            <div class="progress-track">
-                <div class="progress-fill" id="scanFill"></div>
-            </div>
-            <div class="progress-phase" id="scanPhase">Inizializzazione...</div>
+            <div class="progress-bar"><div class="progress-fill" id="scanFill"></div></div>
+            <div class="progress-status" id="scanStatus"></div>
         </div>
         
-        <div class="preview-container">
+        <div class="preview">
             <div class="preview-header">
-                <div class="preview-stats" id="stats">Nessun dato</div>
-                <button class="btn-secondary" onclick="exportTxt()" style="width: auto; padding: 0.5rem 1rem; margin: 0;">
-                    💾 Scarica TXT
-                </button>
+                <span id="stats">Nessun dato</span>
+                <button class="btn-outline" onclick="exportTxt()" style="width:auto;padding:0.375rem 0.75rem;margin:0;font-size:0.7rem">💾 TXT</button>
             </div>
             <div class="preview-box">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Offset</th>
-                            <th>Byte</th>
-                            <th>Testo Estratto</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Offset</th><th>Byte</th><th>Testo</th></tr></thead>
                     <tbody id="resBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-title">
-            <span>⚡</span> Applica Traduzione (Sistema Sicuro)
-        </div>
+    <!-- Patch -->
+    <div class="section">
+        <div class="section-title">⚡ Traduzione</div>
         <input type="file" id="txtFile" accept=".txt">
-        <button class="btn-success" onclick="applyPatch()" id="patchBtn">
-            Patchare ROM con Validazione
-        </button>
-
-        <!-- PROGRESS BAR PATCH -->
-        <div class="progress-wrap" id="patchProgressWrap">
-            <div class="progress-label">
-                <span>Applicazione patch...</span>
+        <button class="btn-success" onclick="patch()" id="patchBtn">Applica Patch</button>
+        
+        <div class="progress" id="patchProgress">
+            <div class="progress-info">
+                <span>Patching...</span>
                 <span id="patchPct">0%</span>
             </div>
-            <div class="progress-track">
-                <div class="progress-fill" id="patchFill"></div>
-            </div>
-            <div class="progress-phase" id="patchPhase">Lettura file...</div>
+            <div class="progress-bar"><div class="progress-fill" id="patchFill"></div></div>
+            <div class="progress-status" id="patchStatus"></div>
         </div>
-
+        
         <div id="patchReport"></div>
     </div>
 
-    <div class="log-box" id="log">✅ Sistema pronto. Filtri estremi e validazione sicura attivi...</div>
+    <!-- Log -->
+    <div class="log" id="log">✅ Sistema pronto</div>
+</div>
+
+<!-- Modal Resume -->
+<div class="modal" id="resumeModal">
+    <div class="modal-content">
+        <div class="modal-title">🔄 Riprendere patch?</div>
+        <div class="modal-text" id="resumeText"></div>
+        <div class="modal-actions">
+            <button class="btn-outline" onclick="clearResume()">Ricomincia</button>
+            <button onclick="resumePatch()">Riprendi</button>
+        </div>
+    </div>
 </div>
 
 <script>
     const charMap = { 0x00: ' ', 0x01: 'À', 0x02: 'Á', 0x03: 'Â', 0x04: 'Ç', 0x05: 'È', 0x06: 'É', 0x07: 'Ê', 0x08: 'Ë', 0x09: 'Ì', 0x0B: 'Î', 0x0C: 'Ï', 0x0D: 'Ò', 0x0E: 'Ó', 0x0F: 'Ô', 0x10: 'Œ', 0x11: 'Ù', 0x12: 'Ú', 0x13: 'Û', 0x14: 'Ÿ', 0x15: 'ß', 0x16: 'à', 0x17: 'á', 0x19: 'ç', 0x1A: 'è', 0x1B: 'é', 0x1C: 'ê', 0x1D: 'ë', 0x1E: 'ì', 0x20: 'î', 0x21: 'ï', 0x22: 'ò', 0x23: 'ó', 0x24: 'ô', 0x25: 'œ', 0x26: 'ù', 0x27: 'ú', 0x28: 'û', 0x29: 'ÿ', 0x2D: '&', 0x2E: '+', 0xAB: '!', 0xAC: '?', 0xAD: '.', 0xAE: '-', 0xB0: '...', 0xB8: ',', 0xBB: 'A', 0xBC: 'B', 0xBD: 'C', 0xBE: 'D', 0xBF: 'E', 0xC0: 'F', 0xC1: 'G', 0xC2: 'H', 0xC3: 'I', 0xC4: 'J', 0xC5: 'K', 0xC6: 'L', 0xC7: 'M', 0xC8: 'N', 0xC9: 'O', 0xCA: 'P', 0xCB: 'Q', 0xCC: 'R', 0xCD: 'S', 0xCE: 'T', 0xCF: 'U', 0xD0: 'V', 0xD1: 'W', 0xD2: 'X', 0xD3: 'Y', 0xD4: 'Z', 0xD5: 'a', 0xD6: 'b', 0xD7: 'c', 0xD8: 'd', 0xD9: 'e', 0xDA: 'f', 0xDB: 'g', 0xDC: 'h', 0xDD: 'i', 0xDE: 'j', 0xDF: 'k', 0xE0: 'l', 0xE1: 'm', 0xE2: 'n', 0xE3: 'o', 0xE4: 'p', 0xE5: 'q', 0xE6: 'r', 0xE7: 's', 0xE8: 't', 0xE9: 'u', 0xEA: 'v', 0xEB: 'w', 0xEC: 'x', 0xED: 'y', 0xEE: 'z', 0xFA: '\\l', 0xFB: '\\p', 0xFD: '\\v', 0xFE: '\\n' };
     const invMap = Object.fromEntries(Object.entries(charMap).map(([k,v]) => [v, parseInt(k)]));
     
-    const validSyllables = ['TI', 'TA', 'TO', 'TE', 'TU', 'CA', 'CO', 'CHE', 'CHI', 'SA', 'SO', 'SE', 'SI', 'SU', 
-                           'LA', 'LE', 'LI', 'LO', 'LU', 'MA', 'ME', 'MI', 'MO', 'MU', 'NA', 'NE', 'NI', 'NO', 
-                           'RA', 'RE', 'RI', 'RO', 'RU', 'PA', 'PE', 'PI', 'PO', 'PU', 'BA', 'BE', 'BI', 'BO',
-                           'DA', 'DE', 'DI', 'DO', 'DU', 'GI', 'GA', 'GO', 'GU', 'GE', 'FA', 'FI', 'FO', 'FE',
-                           'VA', 'VE', 'VI', 'VO', 'VU', 'ZA', 'ZE', 'ZI', 'ZO', 'ZU', 'ZZA', 'ZZO', 'ZZI',
-                           'TRA', 'TRE', 'TRI', 'TRO', 'PRE', 'PRA', 'PRO', 'STA', 'STO', 'STI', 'STE',
-                           'THE', 'ING', 'ION', 'TER', 'EST', 'FOR', 'TIO', 'ATI', 'ATE', 'ICA', 'ICO',
-                           'URA', 'URE', 'ORA', 'ORE', 'ORI', 'ERA', 'ERE', 'ERI', 'ARO', 'ARE', 'ARI',
-                           'CHA', 'CHO', 'CHU', 'GHA', 'GHE', 'GHI', 'GHO', 'GLI', 'GNA', 'GNE', 'GNI', 'GNO',
-                           'SCA', 'SCE', 'SCI', 'SCO', 'SCU', 'SHA', 'SHE', 'SHI', 'SHO', 'SPE', 'SPI', 'SPO',
-                           'QUA', 'QUE', 'QUI', 'QUO'];
+    const validSyllables = ['TI','TA','TO','TE','TU','CA','CO','CHE','CHI','SA','SO','SE','SI','SU','LA','LE','LI','LO','LU','MA','ME','MI','MO','MU','NA','NE','NI','NO','RA','RE','RI','RO','RU','PA','PE','PI','PO','PU','BA','BE','BI','BO','DA','DE','DI','DO','DU','GI','GA','GO','GU','GE','FA','FI','FO','FE','VA','VE','VI','VO','VU','ZA','ZE','ZI','ZO','ZU','ZZA','ZZO','ZZI','TRA','TRE','TRI','TRO','PRE','PRA','PRO','STA','STO','STI','STE','THE','ING','ION','TER','EST','FOR','TIO','ATI','ATE','ICA','ICO','URA','URE','ORA','ORE','ORI','ERA','ERE','ERI','ARO','ARE','ARI','CHA','CHO','CHU','GHA','GHE','GHI','GHO','GLI','GNA','GNE','GNI','GNO','SCA','SCE','SCI','SCO','SCU','SHA','SHE','SHI','SHO','SPE','SPI','SPO','QUA','QUE','QUI','QUO'];
     
-    const blockedSounds = ['HA', 'HE', 'HI', 'HO', 'HU', 'BA', 'BE', 'BI', 'BO', 'BU', 
-                          'RA', 'RE', 'RI', 'RO', 'RU', 'FO', 'FA', 'FU', 'FE', 'FI',
-                          'LA', 'LE', 'LI', 'LO', 'LU', 'WA', 'WE', 'WI', 'WO', 'WU',
-                          'YA', 'YE', 'YI', 'YO', 'YU', 'ZA', 'ZE', 'ZI', 'ZO', 'ZU',
-                          'HAHA', 'HOHO', 'HEHE', 'HIHI', 'BABA', 'BOBO', 'RARA', 'RORO',
-                          'WAWA', 'WOWO', 'YAYA', 'YOYO', 'GAGA', 'GOGO', 'CATT', 'MEO',
-                          'DU', 'TU', 'GU', 'NU', 'MU', 'SU', 'CU', 'PU'];
+    const blockedSounds = ['HA','HE','HI','HO','HU','BA','BE','BI','BO','BU','RA','RE','RI','RO','RU','FO','FA','FU','FE','FI','LA','LE','LI','LO','LU','WA','WE','WI','WO','WU','YA','YE','YI','YO','YU','ZA','ZE','ZI','ZO','ZU','HAHA','HOHO','HEHE','HIHI','BABA','BOBO','RARA','RORO','WAWA','WOWO','YAYA','YOYO','GAGA','GOGO','CATT','MEO','DU','TU','GU','NU','MU','SU','CU','PU'];
     
-    const knownWords = ['ITEM', 'BALL', 'MEGA', 'MOVE', 'HOLD', 'BACK', 'EXIT', 'SURF', 'FIRE', 
-                       'AQUA', 'ROCK', 'LEAF', 'VOLT', 'BOLT', 'STAR', 'MOON', 'STONE', 'WATER',
-                       'GRASS', 'TOXIC', 'STEEL', 'BURN', 'FREEZE', 'SLEEP', 'DRAGON', 'GHOST',
-                       'FAIRY', 'FIGHT', 'GROUND', 'FLYING', 'POISON', 'NORMAL', 'PSYCHIC',
-                       'SUPER', 'HYPER', 'MAX', 'FULL', 'HEAL', 'CURE', 'FRESH', 'GUARD',
-                       'POTION', 'ELIXIR', 'ETHER', 'REVIVE', 'ESCAPE', 'ROPE', 'REPEL',
-                       'BADGE', 'CASE', 'BIKE', 'COIN', 'GOOD', 'GREAT', 'ULTRA', 'MASTER',
-                       'SAFARI', 'LEVEL', 'LUXURY', 'NEST', 'NET', 'DIVE', 'TIMER', 'REPEAT',
-                       'PREMIER', 'DUSK', 'QUICK', 'HEAL', 'ATTACK', 'DEFENSE', 'SPECIAL',
-                       'SPEED', 'ACCURACY', 'EVASION', 'CRITICAL'];
+    const knownWords = ['ITEM','BALL','MEGA','MOVE','HOLD','BACK','EXIT','SURF','FIRE','AQUA','ROCK','LEAF','VOLT','BOLT','STAR','MOON','STONE','WATER','GRASS','TOXIC','STEEL','BURN','FREEZE','SLEEP','DRAGON','GHOST','FAIRY','FIGHT','GROUND','FLYING','POISON','NORMAL','PSYCHIC','SUPER','HYPER','MAX','FULL','HEAL','CURE','FRESH','GUARD','POTION','ELIXIR','ETHER','REVIVE','ESCAPE','ROPE','REPEL','BADGE','CASE','BIKE','COIN','GOOD','GREAT','ULTRA','MASTER','SAFARI','LEVEL','LUXURY','NEST','NET','DIVE','TIMER','REPEAT','PREMIER','DUSK','QUICK','ATTACK','DEFENSE','SPECIAL','SPEED','ACCURACY','EVASION','CRITICAL'];
     
     let rom = null;
     let scanResults = [];
     let uniqueStrings = new Set();
 
+    // ══════════════════════════════════════════════════════════
+    // AUTOSAVE SYSTEM
+    // ══════════════════════════════════════════════════════════
+    const AUTOSAVE_KEY = 'gba_patch_state';
+    const AUTOSAVE_INTERVAL = 10; // Salva ogni 10 stringhe
+
+    function saveState(idx, stats, lines) {
+        const state = {
+            timestamp: Date.now(),
+            lastIndex: idx,
+            stats: stats,
+            totalLines: lines.length
+        };
+        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(state));
+    }
+
+    function loadState() {
+        const saved = localStorage.getItem(AUTOSAVE_KEY);
+        return saved ? JSON.parse(saved) : null;
+    }
+
+    function clearState() {
+        localStorage.removeItem(AUTOSAVE_KEY);
+    }
+
+    // Check resume al caricamento
+    window.addEventListener('load', () => {
+        const state = loadState();
+        if (state && Date.now() - state.timestamp < 24*60*60*1000) { // 24h
+            const elapsed = Math.floor((Date.now() - state.timestamp) / 60000);
+            document.getElementById('resumeText').textContent = 
+                `Trovato salvataggio da ${elapsed} minuti fa. Processate ${state.lastIndex}/${state.totalLines} stringhe.`;
+            document.getElementById('resumeModal').classList.add('active');
+        }
+    });
+
+    function clearResume() {
+        clearState();
+        document.getElementById('resumeModal').classList.remove('active');
+        toast('Stato cancellato', 'success');
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // UTILITIES
+    // ══════════════════════════════════════════════════════════
     const log = (m, type = 'info') => {
         const l = document.getElementById('log');
-        const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '▶️';
-        const className = type === 'success' ? 'log-success' : type === 'error' ? 'log-error' : type === 'warning' ? 'log-warning' : '';
-        l.innerHTML += `<span class="${className}">${icon} ${m}</span><br>`;
+        const cls = type === 'success' ? 'log-success' : type === 'error' ? 'log-error' : type === 'warning' ? 'log-warning' : '';
+        l.innerHTML += `<span class="${cls}">${m}</span><br>`;
         l.scrollTop = l.scrollHeight;
     };
 
-    const showToast = (msg, type = 'success') => {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = msg;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+    const toast = (msg, type = 'success') => {
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2500);
     };
 
     document.getElementById('romFile').onchange = function(e) {
         const reader = new FileReader();
         reader.onload = () => {
             rom = new Uint8Array(reader.result);
-            const name = e.target.files[0].name;
-            document.getElementById('romInfo').innerHTML = `✅ ROM caricata: <strong>${name}</strong> (${(rom.length / 1024 / 1024).toFixed(2)} MB)`;
-            log(`ROM "${name}" caricata con successo`, 'success');
-            showToast('ROM caricata con successo!', 'success');
+            const mb = (rom.length / 1024 / 1024).toFixed(1);
+            document.getElementById('romInfo').innerHTML = `✅ ${e.target.files[0].name} (${mb} MB)`;
+            log('ROM caricata', 'success');
         };
         reader.readAsArrayBuffer(this.files[0]);
     };
@@ -588,70 +504,48 @@
         if (!str || str.length < 3) return false;
 
         if (mode === 'dialogs') {
-            // LUNGHEZZA MINIMA
             if (str.length < 15) return false;
-            
-            // DEVE AVERE MARCATORI DI DIALOGO
             if (!str.includes('\\n') && !str.includes('\\p') && !str.includes('\\l')) return false;
-            
-            // ANTI-RIPETIZIONI PATTERN ULTRA
             if (/(.{2,4})\1{2,}/i.test(str)) return false;
             if (/(.)\1{3,}/i.test(str)) return false;
-            
-            // ANTI-RIPETIZIONI TRIPLE
             if (/([A-Z])\1{2,}/i.test(str)) return false;
             
-            // ANTI-SEQUENZE ALFABETICHE
             const alphaParts = str.match(/[A-Z]+/gi) || [];
             for (let part of alphaParts) {
                 if (part.length >= 5) {
-                    let isSequence = true;
+                    let isSeq = true;
                     for (let i = 0; i < part.length - 1; i++) {
                         const diff = part.charCodeAt(i + 1) - part.charCodeAt(i);
-                        if (diff !== 1 && diff !== 2) { isSequence = false; break; }
+                        if (diff !== 1 && diff !== 2) { isSeq = false; break; }
                     }
-                    if (isSequence) return false;
+                    if (isSeq) return false;
                 }
             }
             
-            // ANTI-ENCODING CORROTTO
             const accentCount = (str.match(/[À-ÿ]/g) || []).length;
             const normalLetters = (str.match(/[A-Za-z]/g) || []).length;
             if (normalLetters > 0 && accentCount > normalLetters * 0.15) return false;
             
-            // ANTI-GLITCH PATTERN POTENZIATO
             if (/[À-ÿ]{2,}/.test(str)) return false;
             if (/[ËÃ]{2,}/.test(str)) return false;
             if (/Ã[^\s]/.test(str)) return false;
             if (/[Å'][^\s]/.test(str)) return false;
-            
-            // ANTI-PATTERN GRAFICI
             if (/[A-Z]{18,}/.test(str)) return false;
-            
-            // ANTI-CONSONANTI CONSECUTIVE ECCESSIVE
             if (/[BCDFGHJKLMNPQRSTVWXYZ]{5,}/.test(str)) return false;
             
-            // BLOCCA MAIUSCOLE SINGOLE SPARSE: "B A C D"
             const singleCaps = str.match(/\b[A-Z]\b/g) || [];
             if (singleCaps.length > 4) return false;
             
-            // ─── LOGICA ADATTIVA ────────────────────────────────────────
-            // CASO A: Dialogo con prefisso personaggio tipo "MOM: ..." o "PROF: ..."
             const hasNamePrefix = /^[A-Z][A-Za-z]{1,8}[\s:]/.test(str);
-            
-            // CASO B: Dialogo lungo (>35 chars)
             const isLong = str.length > 35;
             
-            // SPAZI RICHIESTI: 2 per dialoghi corti/con nome, 3 per quelli lunghi
             const spaceCount = (str.match(/ /g) || []).length;
             const minSpaces = (hasNamePrefix || !isLong) ? 2 : 3;
             if (spaceCount < minSpaces) return false;
             
-            // VOCALI DISTRIBUITE
             const vowelCount = (str.match(/[AEIOUaeiou]/g) || []).length;
             if (normalLetters > 0 && vowelCount < normalLetters * 0.25) return false;
             
-            // PAROLE REALI: 2 per dialoghi brevi con nome, 3 per quelli lunghi
             const words = str.split(/[\s\\,!?.]/);
             const realWords = words.filter(w => w.length >= 3 && /^[A-Za-z]+$/.test(w) && countSyllables(w) >= 1);
             const minWords = (hasNamePrefix || !isLong) ? 2 : 3;
@@ -689,14 +583,11 @@
             
             const syllableCount = countSyllables(str);
             if (syllableCount < 2) {
-                if (!knownWords.includes(str.replace(/[^A-Z]/g, ''))) {
-                    return false;
-                }
+                if (!knownWords.includes(str.replace(/[^A-Z]/g, ''))) return false;
             }
             
             const rareLetters = (str.match(/[QXZJKW]/g) || []).length;
             if (rareLetters > letters * 0.4) return false;
-            
             if (/^[0-9\.\-\s]+$/.test(str)) return false;
             
             return true;
@@ -704,11 +595,11 @@
         return false;
     }
 
-    function smartScan() {
-        if(!rom) {
-            showToast('Carica prima una ROM!', 'error');
-            return;
-        }
+    // ══════════════════════════════════════════════════════════
+    // SCAN
+    // ══════════════════════════════════════════════════════════
+    function scan() {
+        if(!rom) return toast('Carica ROM prima!', 'error');
         
         const mode = document.getElementById('extractMode').value;
         const body = document.getElementById('resBody');
@@ -716,28 +607,23 @@
         scanResults = [];
         uniqueStrings.clear();
         
-        // Mostra progress bar
-        const wrap = document.getElementById('scanProgressWrap');
+        const wrap = document.getElementById('scanProgress');
         const fill = document.getElementById('scanFill');
-        const pct  = document.getElementById('scanPct');
-        const phase = document.getElementById('scanPhase');
+        const pct = document.getElementById('scanPct');
+        const status = document.getElementById('scanStatus');
         wrap.classList.add('active');
         fill.style.width = '0%';
         
-        log(`🔍 Scansione ${mode === 'short' ? 'Mosse/Oggetti' : 'Dialoghi'} avviata (filtro ULTRA)...`);
+        log(`Scansione ${mode} avviata`);
 
-        const START = 0x200000;
-        const END   = rom.length;
-        let i = START;
-        let count = 0;
-        let rejected = 0;
+        const START = 0x200000, END = rom.length;
+        let i = START, count = 0, rejected = 0;
 
-        function updateProgress() {
-            const progress = Math.min(100, ((i - START) / (END - START)) * 100);
-            fill.style.width = progress.toFixed(1) + '%';
-            pct.textContent  = progress.toFixed(0) + '%';
-            const mb = (i / 1024 / 1024).toFixed(1);
-            phase.textContent = `Offset 0x${i.toString(16).toUpperCase()} — ${mb} MB — ✅ ${count} trovate`;
+        function update() {
+            const p = Math.min(100, ((i - START) / (END - START)) * 100);
+            fill.style.width = p.toFixed(1) + '%';
+            pct.textContent = p.toFixed(0) + '%';
+            status.textContent = `0x${i.toString(16).toUpperCase()} — ${count} trovate`;
         }
 
         function doScan() {
@@ -753,261 +639,201 @@
                     if(isValidText(s, mode) && !uniqueStrings.has(s)) {
                         uniqueStrings.add(s);
                         const off = "0x" + i.toString(16).toUpperCase();
-                        const bytes = j - i;
-                        scanResults.push({o: off, t: s, b: bytes});
+                        scanResults.push({o: off, t: s, b: j - i});
                         if(count < 200) {
                             body.insertAdjacentHTML('beforeend', 
-                                `<tr><td class="hex">${off}</td><td>${bytes}</td><td class="text-cell">${s}</td></tr>`);
+                                `<tr><td class="hex">${off}</td><td>${j-i}</td><td class="text-cell">${s}</td></tr>`);
                         }
                         count++;
                         i = j;
-                    } else {
-                        rejected++;
-                    }
+                    } else rejected++;
                 }
             }
             
-            updateProgress();
-            document.getElementById('stats').textContent = `✅ Valide: ${count} | 🚫 Filtrate: ${rejected}`;
+            update();
+            document.getElementById('stats').textContent = `✅ ${count} | 🚫 ${rejected}`;
             
-            if(i < END - 1) {
-                requestAnimationFrame(doScan);
-            } else {
+            if(i < END - 1) requestAnimationFrame(doScan);
+            else {
                 fill.style.width = '100%';
                 pct.textContent = '100%';
-                phase.textContent = `✅ Completata! ${count} stringhe valide trovate.`;
-                log(`✅ Scansione completata: ${count} stringhe valide, ${rejected} filtrate`, 'success');
-                showToast(`Trovate ${count} stringhe valide!`, 'success');
-                setTimeout(() => wrap.classList.remove('active'), 4000);
+                status.textContent = `✅ ${count} stringhe trovate`;
+                log(`Completata: ${count} valide`, 'success');
+                toast(`${count} stringhe trovate`, 'success');
+                setTimeout(() => wrap.classList.remove('active'), 3000);
             }
         }
         doScan();
     }
 
     function exportTxt() {
-        if(scanResults.length === 0) {
-            showToast('Nessun dato da esportare!', 'error');
-            return;
-        }
-        
+        if(!scanResults.length) return toast('Niente da esportare', 'error');
         let out = "OFFSET | MAX_BYTE | TESTO\n";
         scanResults.forEach(r => out += `${r.o} | ${r.b} | ${r.t}\n`);
-        
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob([out], {type:'text/plain'}));
-        a.download = `Traduzione_${document.getElementById('extractMode').value}_${Date.now()}.txt`;
+        a.download = `Trad_${document.getElementById('extractMode').value}_${Date.now()}.txt`;
         a.click();
-        
-        log(`📥 File esportato: ${scanResults.length} righe`, 'success');
-        showToast('File TXT scaricato!', 'success');
+        log('File esportato', 'success');
     }
 
-    // ============================================================
-    // SISTEMA DI PATCHING AVANZATO CON VALIDAZIONE COMPLETA
-    // ============================================================
-
-    function calculateByteLength(text) {
-        let byteCount = 0;
-        for (let i = 0; i < text.length; i++) {
-            if (text[i] === '\\' && text[i + 1]) {
-                const code = text[i] + text[i + 1];
-                if (code === '\\v' && /\d/.test(text[i + 2])) {
-                    byteCount += 2; // \v01 = 2 bytes (0xFD + ID)
-                    i += 2;
-                } else if (invMap[code] !== undefined) {
-                    byteCount += 1;
-                    i++;
-                } else {
-                    byteCount += 1;
-                }
-            } else {
-                byteCount += 1;
-            }
-        }
-        byteCount += 1; // Terminatore 0xFF
-        return byteCount;
-    }
-
+    // ══════════════════════════════════════════════════════════
+    // PATCH con AUTOSAVE
+    // ══════════════════════════════════════════════════════════
     function textToBytes(text) {
         let bytes = [];
         for (let k = 0; k < text.length; k++) {
             if (text[k] === '\\' && text[k + 1]) {
                 let code = text[k] + text[k + 1];
-                if (invMap[code] !== undefined) {
-                    bytes.push(invMap[code]);
-                    k++;
-                    continue;
-                }
+                if (invMap[code] !== undefined) { bytes.push(invMap[code]); k++; continue; }
             }
             bytes.push(invMap[text[k]] !== undefined ? invMap[text[k]] : 0x00);
         }
-        bytes.push(0xFF); // Terminatore
+        bytes.push(0xFF);
         return bytes;
     }
 
     function findFreeSpace(needed) {
         let count = 0;
         for (let i = rom.length - 1; i > 0x800000; i--) {
-            if (rom[i] === 0xFF) {
-                count++;
-            } else {
-                count = 0;
-            }
-            if (count >= needed + 10) {
-                return i + 5;
-            }
+            if (rom[i] === 0xFF) count++;
+            else count = 0;
+            if (count >= needed + 10) return i + 5;
         }
         return -1;
     }
 
     function createPointer(offset) {
-        return new Uint8Array([
-            offset & 0xFF,
-            (offset >> 8) & 0xFF,
-            (offset >> 16) & 0xFF,
-            0x08
-        ]);
+        return new Uint8Array([offset & 0xFF, (offset >> 8) & 0xFF, (offset >> 16) & 0xFF, 0x08]);
     }
 
-    function repointPointers(oldOffset, newOffset) {
-        const oldPtr = createPointer(oldOffset);
-        const newPtr = createPointer(newOffset);
-        let foundCount = 0;
-
+    function repointPointers(oldOff, newOff) {
+        const oldPtr = createPointer(oldOff);
+        const newPtr = createPointer(newOff);
+        let found = 0;
         for (let i = 0; i < rom.length - 4; i++) {
-            if (rom[i] === oldPtr[0] && 
-                rom[i + 1] === oldPtr[1] && 
-                rom[i + 2] === oldPtr[2] && 
-                rom[i + 3] === oldPtr[3]) {
+            if (rom[i] === oldPtr[0] && rom[i+1] === oldPtr[1] && rom[i+2] === oldPtr[2] && rom[i+3] === oldPtr[3]) {
                 rom.set(newPtr, i);
-                foundCount++;
+                found++;
             }
         }
-        return foundCount;
+        return found;
     }
 
-    async function applyPatch() {
+    async function patch() {
         const file = document.getElementById('txtFile').files[0];
-        if (!file || !rom) {
-            showToast('Manca la ROM o il file TXT!', 'error');
-            return;
-        }
+        if (!file || !rom) return toast('ROM o TXT mancante', 'error');
 
         const btn = document.getElementById('patchBtn');
         btn.disabled = true;
 
-        // Mostra progress bar patch
-        const wrap  = document.getElementById('patchProgressWrap');
-        const fill  = document.getElementById('patchFill');
-        const pct   = document.getElementById('patchPct');
-        const phase = document.getElementById('patchPhase');
+        const wrap = document.getElementById('patchProgress');
+        const fill = document.getElementById('patchFill');
+        const pct = document.getElementById('patchPct');
+        const status = document.getElementById('patchStatus');
         wrap.classList.add('active');
         fill.style.width = '0%';
-        pct.textContent  = '0%';
-        phase.textContent = 'Lettura file TXT...';
 
         const lines = (await file.text()).split('\n').filter(l => l.includes('|') && !l.startsWith('OFFSET'));
         const total = lines.length;
         
-        let stats = { total: 0, overwritten: 0, repointed: 0, failed: 0, protected: 0, errors: [] };
+        // Check se riprendere
+        const saved = loadState();
+        let idx = (saved && saved.totalLines === total) ? saved.lastIndex : 0;
+        let stats = saved && saved.totalLines === total ? saved.stats : 
+            { total: 0, overwritten: 0, repointed: 0, failed: 0, protected: 0 };
 
-        log('⚡ Avvio patching con validazione sicura...', 'info');
+        log(`Patch avviata da riga ${idx}/${total}`);
         document.getElementById('patchReport').innerHTML = '';
-
-        // Processo a blocchi per non bloccare la UI e aggiornare la progress bar
-        let idx = 0;
 
         function processChunk() {
             const chunkEnd = Math.min(idx + 20, total);
 
             for (; idx < chunkEnd; idx++) {
-                const line = lines[idx];
-                const parts = line.split('|').map(s => s.trim());
+                const parts = lines[idx].split('|').map(s => s.trim());
                 if (parts.length < 3) continue;
 
-                const [offsetStr, maxByteStr, text] = parts;
-                const oldOffset = parseInt(offsetStr, 16);
-                const maxBytes  = parseInt(maxByteStr);
+                const [offStr, maxBStr, text] = parts;
+                const oldOff = parseInt(offStr, 16);
+                const maxB = parseInt(maxBStr);
 
-                // PROTEZIONE HEADER
-                if (isNaN(oldOffset) || oldOffset < 0x200000) {
+                if (isNaN(oldOff) || oldOff < 0x200000) {
                     stats.protected++;
-                    log(`⚠️ PROTETTO: ${offsetStr} (area critica < 0x200000)`, 'warning');
                     continue;
                 }
 
                 stats.total++;
                 const newBytes = textToBytes(text);
-                const newLength = newBytes.length;
 
                 try {
-                    if (newLength <= maxBytes + 1) {
-                        // SOVRASCRIVI IN LOCO + padding 0xFF
-                        rom.set(newBytes, oldOffset);
-                        const remaining = (maxBytes + 1) - newLength;
-                        if (remaining > 0) rom.set(new Uint8Array(remaining).fill(0xFF), oldOffset + newLength);
+                    if (newBytes.length <= maxB + 1) {
+                        rom.set(newBytes, oldOff);
+                        const rem = (maxB + 1) - newBytes.length;
+                        if (rem > 0) rom.set(new Uint8Array(rem).fill(0xFF), oldOff + newBytes.length);
                         stats.overwritten++;
                     } else {
-                        // REPOINTING
-                        const newOffset = findFreeSpace(newLength);
-                        if (newOffset === -1) {
+                        const newOff = findFreeSpace(newBytes.length);
+                        if (newOff === -1) {
                             stats.failed++;
-                            log(`❌ SPAZIO INSUFFICIENTE: ${offsetStr} (servono ${newLength} bytes)`, 'error');
-                            stats.errors.push(`${offsetStr}: Spazio insufficiente`);
+                            log(`Spazio mancante: ${offStr}`, 'error');
                             continue;
                         }
-                        rom.set(newBytes, newOffset);
-                        const ptrCount = repointPointers(oldOffset, newOffset);
+                        rom.set(newBytes, newOff);
+                        repointPointers(oldOff, newOff);
                         stats.repointed++;
-                        if (ptrCount === 0) log(`⚠️ REPOINT: ${offsetStr} → 0x${newOffset.toString(16).toUpperCase()} (nessun puntatore trovato)`, 'warning');
-                        else log(`🔀 REPOINT: ${offsetStr} → 0x${newOffset.toString(16).toUpperCase()} (${ptrCount} ptr aggiornati)`, 'success');
                     }
-                } catch (error) {
+                } catch(e) {
                     stats.failed++;
-                    stats.errors.push(`${offsetStr}: ${error.message}`);
+                }
+
+                // AUTOSAVE ogni 10 stringhe
+                if ((idx + 1) % AUTOSAVE_INTERVAL === 0) {
+                    saveState(idx + 1, stats, lines);
                 }
             }
 
-            // Aggiorna progress bar
-            const progress = total > 0 ? Math.min(100, (idx / total) * 100) : 100;
-            fill.style.width = progress.toFixed(1) + '%';
-            pct.textContent  = progress.toFixed(0) + '%';
-            phase.textContent = `Stringa ${idx}/${total} — ✅ ${stats.overwritten} in loco | 🔀 ${stats.repointed} repoint | ❌ ${stats.failed} errori`;
+            const p = total > 0 ? Math.min(100, (idx / total) * 100) : 100;
+            fill.style.width = p.toFixed(1) + '%';
+            pct.textContent = p.toFixed(0) + '%';
+            status.textContent = `${idx}/${total} — ✅${stats.overwritten} 🔀${stats.repointed} ❌${stats.failed}`;
 
             if (idx < total) {
                 requestAnimationFrame(processChunk);
             } else {
-                // ─── FINE PATCHING ────────────────────────────────────
+                // FINE
+                clearState();
                 fill.style.width = '100%';
-                pct.textContent  = '100%';
-                phase.textContent = '✅ Patch completata!';
+                pct.textContent = '100%';
+                status.textContent = '✅ Completata!';
 
                 document.getElementById('patchReport').innerHTML = `
-                    <div class="patch-report">
-                        <h3 style="color: var(--success); margin-bottom: 1rem;">📊 Report Patching</h3>
-                        <div class="report-item"><span>Stringhe processate:</span><strong>${stats.total}</strong></div>
-                        <div class="report-item"><span>✅ Sovrascritte in loco:</span><strong style="color:var(--success)">${stats.overwritten}</strong></div>
-                        <div class="report-item"><span>🔀 Riposizionate (repoint):</span><strong style="color:var(--accent)">${stats.repointed}</strong></div>
-                        <div class="report-item"><span>🛡️ Protette (header):</span><strong style="color:var(--warning)">${stats.protected}</strong></div>
-                        <div class="report-item"><span>❌ Fallite (spazio):</span><strong style="color:var(--danger)">${stats.failed}</strong></div>
-                        ${stats.errors.length > 0 ? `<div style="margin-top:.5rem;font-size:.75rem;color:var(--danger)">Errori: ${stats.errors.join(' | ')}</div>` : ''}
+                    <div class="report">
+                        <div class="report-item"><span>Processate</span><strong>${stats.total}</strong></div>
+                        <div class="report-item"><span>✅ In loco</span><strong style="color:var(--success)">${stats.overwritten}</strong></div>
+                        <div class="report-item"><span>🔀 Repoint</span><strong style="color:var(--accent)">${stats.repointed}</strong></div>
+                        <div class="report-item"><span>🛡️ Protette</span><strong style="color:var(--warning)">${stats.protected}</strong></div>
+                        <div class="report-item"><span>❌ Fallite</span><strong style="color:var(--danger)">${stats.failed}</strong></div>
                     </div>`;
 
-                log(`✅ Patch completata! Successo: ${stats.overwritten + stats.repointed}/${stats.total}`, 'success');
-                if (stats.failed > 0) log(`⚠️ ${stats.failed} stringhe non scritte per mancanza di spazio`, 'warning');
+                log(`Patch OK: ${stats.overwritten + stats.repointed}/${stats.total}`, 'success');
 
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(new Blob([rom], {type:'application/octet-stream'}));
-                a.download = 'Pokemon_Tradotto_SAFE.gba';
+                a.download = 'Pokemon_ITA.gba';
                 a.click();
 
-                showToast('ROM patchata scaricata!', 'success');
+                toast('ROM patchata scaricata', 'success');
                 btn.disabled = false;
-                btn.textContent = 'Patchare ROM con Validazione';
             }
         }
 
         processChunk();
+    }
+
+    function resumePatch() {
+        document.getElementById('resumeModal').classList.remove('active');
+        // La ROM deve essere caricata e il file TXT riselezionato
+        toast('Ricarica ROM e TXT per riprendere', 'warning');
     }
 </script>
 </body>

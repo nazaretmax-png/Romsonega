@@ -359,9 +359,6 @@
             <option value="dialogs">💬 Dialoghi (filtro medio)</option>
             <option value="all">🌐 TUTTO il testo (nessun filtro)</option>
         </select>
-        <div style="font-size:0.7rem;color:var(--text-dim);margin-top:0.25rem;padding:0.375rem;background:var(--bg);border-radius:0.25rem;border-left:2px solid var(--accent)">
-            💡 <strong>Consiglio:</strong> Usa modalità "TUTTO" + checkbox inglese per estrarre solo testo non tradotto
-        </div>
         <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;font-size:0.8rem;cursor:pointer">
             <input type="checkbox" id="englishOnly" style="width:auto">
             <span>Estrai solo testo inglese (🇬🇧 rilevamento automatico)</span>
@@ -397,23 +394,8 @@
         <input type="file" id="txtFile" accept=".txt">
         <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;font-size:0.75rem;cursor:pointer">
             <input type="checkbox" id="forceOverwrite" style="width:auto">
-            <span style="color:var(--warning)">⚠️ Forza sovrascrivi (tronca se troppo lungo - RISCHIO CRASH)</span>
+            <span style="color:var(--warning)">⚠️ Forza sovrascrivi (tronca se troppo lungo)</span>
         </label>
-        <div style="font-size:0.7rem;color:var(--text-dim);margin-top:0.5rem;padding:0.5rem;background:var(--bg);border-radius:0.25rem;border-left:2px solid var(--warning)">
-            <strong style="color:var(--warning)">📌 File SHORT (Mosse/Oggetti/Abilità):</strong><br>
-            • NON possono essere spostati (offset fissi in tabelle)<br>
-            • Sistema attiva troncamento AUTO se rileva file SHORT<br>
-            • <strong>Soluzione:</strong> Usa traduzioni più corte!<br>
-            <br>
-            <strong style="color:var(--accent)">Esempi lunghezze OK:</strong><br>
-            SAND VEIL (9) → VELO SABBIA (11) ✅<br>
-            POISON POINT (12) → VELENOPUNTA (12) ✅<br>
-            COLOR CHANGE (12) → CAMBIACOLORE (12) ✅<br>
-            CLEAR BODY (10) → CORPOCHIARO (11) ✅<br>
-            <button onclick="downloadGuide()" style="margin-top:0.5rem;padding:0.25rem 0.5rem;font-size:0.65rem;width:auto">
-                📖 Scarica guida completa traduzioni SHORT
-            </button>
-        </div>
         <button class="btn-success" onclick="patch()" id="patchBtn">Applica Patch</button>
         
         <div class="progress" id="patchProgress">
@@ -849,71 +831,6 @@
         log('File esportato', 'success');
     }
 
-    function downloadGuide() {
-        const guide = `GUIDA TRADUZIONI FILE SHORT (Mosse/Oggetti/Abilità)
-==================================================
-
-⚠️ REGOLA D'ORO: La traduzione deve essere UGUALE o PIÙ CORTA dell'originale!
-
-📌 PERCHÉ?
-Le stringhe SHORT sono in TABELLE con offset FISSI.
-Il gioco legge DIRETTAMENTE da quell'offset → NON si possono spostare!
-
-✂️ COSA SUCCEDE SE È TROPPO LUNGA?
-Il sistema TRONCA automaticamente → Testo incompleto nel gioco!
-
-✅ STRATEGIE DI TRADUZIONE:
-
-1. **Compattazione**: "VELENO PUNTA" → "VELENOPUNTA"
-2. **Abbreviazione**: "CAMBIA COLORE" → "CAMBIACOL"  
-3. **Sinonimi corti**: "ENORME" → "GRAN", "PRESTO" → "PRECO"
-4. **Anglicismi**: "AIR LOCK" → "ARIALOCK"
-5. **Nomi inventati**: "PIATTOPIOGGIA" → "VASSOPIOG"
-
-💡 ESEMPI PRATICI:
-
-SAND VEIL (9) → SABBIAVELO (10) ✅
-COLOR CHANGE (12) → CAMBIACOLORE (12) ✅
-FLASH FIRE (10) → FUOCOLAMPO (10) ✅
-CLEAR BODY (10) → CORPOPURO (9) ✅
-HUGE POWER (10) → GRANFORZA (9) ✅
-POISON POINT (12) → VELENOPUNTA (12) ✅
-EARLY BIRD (10) → MATTINIERO (10) ✅
-FLAME BODY (10) → CORPOFUOCO (10) ✅
-ROCK HEAD (9) → TESTADURA (9) ✅
-AIR LOCK (8) → ARIALOCK (8) ✅
-
-❌ ERRORI COMUNI:
-
-FIRE → FUOCO (4→5) ✅
-FIRE STONE → PIETRA FUOCO (10→12) ❌ → PIETRAFUOCO (11) ✅
-ROCK → ROCCIA (4→6) ❌ → ROCCA (5) ✅
-COLOR → COLORE (5→6) ❌ → COLOR (5) ✅
-
-🔧 WORKFLOW:
-
-1. Estrai con "Mosse/Oggetti"
-2. Guarda colonna MAX_BYTE
-3. Traduci con MAX quel numero di caratteri
-4. Applica patch
-5. Controlla nel gioco
-6. Se troncato → traduci più corto → ri-patcha
-
-📊 TABELLA VELOCE:
-
-3-5 byte  → Usa traduzione identica o più corta
-6-8 byte  → Compatta parole, togli spazi  
-9-12 byte → Sinonimi corti, abbreviazioni
-13+ byte  → Solo per dialoghi (altra modalità!)
-
-==================================================`;
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([guide], {type:'text/plain;charset=utf-8'}));
-        a.download = 'GUIDA_traduzioni_SHORT.txt';
-        a.click();
-        toast('Guida scaricata!', 'success');
-    }
-
     // ══════════════════════════════════════════════════════════
     // PATCH con AUTOSAVE
     // ══════════════════════════════════════════════════════════
@@ -922,11 +839,23 @@ COLOR → COLORE (5→6) ❌ → COLOR (5) ✅
         for (let k = 0; k < text.length; k++) {
             if (text[k] === '\\' && text[k + 1]) {
                 let code = text[k] + text[k + 1];
-                if (invMap[code] !== undefined) { bytes.push(invMap[code]); k++; continue; }
+                if (invMap[code] !== undefined) { 
+                    bytes.push(invMap[code]); 
+                    k++; 
+                    continue; 
+                }
             }
-            bytes.push(invMap[text[k]] !== undefined ? invMap[text[k]] : 0x00);
+            
+            const char = text[k];
+            if (invMap[char] !== undefined) {
+                bytes.push(invMap[char]);
+            } else {
+                // Carattere non mappato - SKIPPA (emoji, simboli strani, ecc.)
+                // NON scrivere 0x00 per caratteri sconosciuti
+                continue;
+            }
         }
-        bytes.push(0xFF);
+        bytes.push(0xFF); // Terminatore
         return bytes;
     }
 
@@ -1006,12 +935,10 @@ COLOR → COLORE (5→6) ❌ → COLOR (5) ✅
         
         if (isShortFile) {
             const confirm = window.confirm(
-                '⚠️ FILE RILEVATO: Mosse/Oggetti/Abilità\n\n' +
-                'Queste stringhe NON possono essere spostate!\n' +
-                'Il gioco le legge da offset FISSI in tabelle.\n\n' +
-                '✅ Soluzione: Troncare automaticamente le traduzioni lunghe\n' +
-                '❌ Alternativa: Usa traduzioni più corte\n\n' +
-                'Vuoi procedere con troncamento automatico?'
+                '⚠️ FILE SHORT RILEVATO\n\n' +
+                'Le traduzioni devono essere ≤ MAX_BYTE\n' +
+                'Altrimenti verranno TRONCATE.\n\n' +
+                'Procedi con troncamento automatico?'
             );
             
             if (!confirm) {
@@ -1019,10 +946,8 @@ COLOR → COLORE (5→6) ❌ → COLOR (5) ✅
                 return;
             }
             
-            // Forza overwrite per file SHORT
             document.getElementById('forceOverwrite').checked = true;
-            log('🔪 Modalità TRONCAMENTO attivata automaticamente per file SHORT', 'warning');
-            toast('⚠️ Testo troppo lungo verrà troncato', 'warning');
+            log('🔪 Troncamento automatico attivato', 'warning');
         }
         
         // Salva file TXT in IndexedDB per resume
@@ -1109,8 +1034,11 @@ COLOR → COLORE (5→6) ❌ → COLOR (5) ✅
 
                 const [offStr, maxBStr, textRaw] = parts;
                 
-                // Rimuovi tag lingua se presente: [🇬🇧] o [🇮🇹]
-                const text = textRaw.replace(/^\[[🇬🇧🇮🇹]+\]\s*/, '');
+                // Rimuovi tag lingua in modo più robusto
+                let text = textRaw
+                    .replace(/^\[🇬🇧\]\s*/g, '')
+                    .replace(/^\[🇮🇹\]\s*/g, '')
+                    .replace(/^\[[^\]]+\]\s*/g, ''); // Fallback per altri tag
                 
                 const oldOff = parseInt(offStr, 16);
                 const maxB = parseInt(maxBStr);
@@ -1133,8 +1061,6 @@ COLOR → COLORE (5→6) ❌ → COLOR (5) ✅
                         stats.overwritten++;
                     } else if (forceOverwrite) {
                         // CASO 2: Force overwrite - TRONCA il testo
-                        const originalText = text.substring(0, 30); // Primi 30 char per log
-                        log(`⚠️ ${offStr}: "${originalText}..." troncato da ${newBytes.length} a ${maxB + 1} bytes`, 'warning');
                         const truncated = newBytes.slice(0, maxB);
                         truncated.push(0xFF);
                         rom.set(truncated, oldOff);
@@ -1152,14 +1078,9 @@ COLOR → COLORE (5→6) ❌ → COLOR (5) ✅
                         const ptrCount = repointPointers(oldOff, newOff);
                         stats.repointed++;
                         
-                        // Traccia puntatori non trovati
+                        // Log solo se nessun puntatore trovato
                         if (ptrCount === 0) {
                             stats.noPointers++;
-                            log(`⚠️ ${offStr} → 0x${newOff.toString(16).toUpperCase()}: NESSUN puntatore trovato! Testo potrebbe rimanere inglese`, 'warning');
-                        } else if (ptrCount === 1) {
-                            log(`✅ ${offStr} → 0x${newOff.toString(16).toUpperCase()}: ${ptrCount} puntatore aggiornato`, 'success');
-                        } else {
-                            log(`✅ ${offStr} → 0x${newOff.toString(16).toUpperCase()}: ${ptrCount} puntatori aggiornati`, 'success');
                         }
                     }
                 } catch(e) {
@@ -1187,28 +1108,33 @@ COLOR → COLORE (5→6) ❌ → COLOR (5) ✅
                 pct.textContent = '100%';
                 status.textContent = '✅ Completata!';
 
+                const truncPercent = stats.truncated > 0 ? Math.round((stats.truncated / stats.total) * 100) : 0;
+                
                 document.getElementById('patchReport').innerHTML = `
                     <div class="report">
                         <div class="report-item"><span>Processate</span><strong>${stats.total}</strong></div>
                         <div class="report-item"><span>✅ In loco</span><strong style="color:var(--success)">${stats.overwritten}</strong></div>
-                        ${stats.truncated > 0 ? `<div class="report-item"><span>✂️ Troncate</span><strong style="color:var(--warning)">${stats.truncated}</strong></div>` : ''}
+                        ${stats.truncated > 0 ? `<div class="report-item"><span>✂️ Troncate</span><strong style="color:var(--warning)">${stats.truncated} (${truncPercent}%)</strong></div>` : ''}
                         <div class="report-item"><span>🔀 Repoint</span><strong style="color:var(--accent)">${stats.repointed}</strong></div>
-                        ${stats.noPointers > 0 ? `<div class="report-item"><span>⚠️ Senza puntatori</span><strong style="color:var(--warning)">${stats.noPointers}</strong></div>` : ''}
-                        <div class="report-item"><span>🛡️ Protette</span><strong style="color:var(--warning)">${stats.protected}</strong></div>
-                        <div class="report-item"><span>❌ Fallite</span><strong style="color:var(--danger)">${stats.failed}</strong></div>
+                        ${stats.noPointers > 0 ? `<div class="report-item"><span>⚠️ Senza ptr</span><strong style="color:var(--warning)">${stats.noPointers}</strong></div>` : ''}
+                        <div class="report-item"><span>🛡️ Protette</span><strong style="color:var(--text-dim)">${stats.protected}</strong></div>
+                        ${stats.failed > 0 ? `<div class="report-item"><span>❌ Fallite</span><strong style="color:var(--danger)">${stats.failed}</strong></div>` : ''}
                     </div>`;
 
-                log(`✅ Patch OK: ${stats.overwritten + stats.repointed}/${stats.total}`, 'success');
+                log(`✅ Patch completata: ${stats.overwritten + stats.repointed}/${stats.total}`, 'success');
                 
                 if (stats.truncated > 0) {
-                    log(`✂️ ${stats.truncated} stringhe TRONCATE! Controlla il gioco`, 'warning');
-                    log(`💡 CONSIGLIO: Usa traduzioni più corte per evitare troncamenti`, 'warning');
+                    const truncPercent = Math.round((stats.truncated / stats.total) * 100);
+                    log(`✂️ ${stats.truncated} stringhe troncate (${truncPercent}%)`, 'warning');
+                    
+                    if (truncPercent > 50) {
+                        log(`❌ TROPPO TRONCAMENTO: ${truncPercent}%`, 'error');
+                        toast(`❌ ${truncPercent}% troncate`, 'error');
+                    }
                 }
                 
                 if (stats.noPointers > 0) {
-                    log(`⚠️ ATTENZIONE: ${stats.noPointers} stringhe spostate SENZA puntatori trovati!`, 'warning');
-                    log(`⚠️ Il testo potrebbe rimanere in inglese. Usa modalità "TUTTO + inglese" per trovare cosa manca`, 'warning');
-                    toast(`⚠️ ${stats.noPointers} stringhe potrebbero essere ancora in inglese`, 'warning');
+                    log(`⚠️ ${stats.noPointers} stringhe senza puntatori`, 'warning');
                 }
 
                 const a = document.createElement('a');

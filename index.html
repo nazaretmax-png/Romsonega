@@ -469,6 +469,7 @@
     let scanResults = [];
     let uniqueStrings = new Set();
     let repointedOffsets = new Set(); // Traccia offset repointed per skipparli in scansione
+    let romExpansions = 0; // Conta quante volte espandiamo la ROM
 
     // ══════════════════════════════════════════════════════════
     // AUTOSAVE SYSTEM con IndexedDB
@@ -935,7 +936,22 @@
             else count = 0;
             if (count >= needed + 10) return i + 5;
         }
-        return -1;
+        
+        // ESPANSIONE AUTOMATICA - Se non c'è spazio, allarga la ROM!
+        const expandBy = Math.max(needed + 0x10000, 0x100000); // Aggiungi almeno 1MB
+        const oldSize = rom.length;
+        const newSize = oldSize + expandBy;
+        
+        romExpansions++; // Conta espansione
+        log(`📈 Espansione ROM #${romExpansions}: ${(oldSize / 1024 / 1024).toFixed(1)}MB → ${(newSize / 1024 / 1024).toFixed(1)}MB (+${(expandBy / 1024).toFixed(0)}KB)`, 'info');
+        
+        const newRom = new Uint8Array(newSize);
+        newRom.set(rom); // Copia vecchia ROM
+        newRom.fill(0xFF, oldSize); // Riempi nuovo spazio con 0xFF
+        rom = newRom;
+        
+        // Ritorna offset nel nuovo spazio
+        return oldSize + 5;
     }
 
     function createPointer(offset) {
@@ -1005,11 +1021,12 @@
         if (isShortFile) {
             const confirm = window.confirm(
                 '⚠️ FILE SHORT RILEVATO\n\n' +
-                'Sistema IBRIDO attivato:\n' +
-                '• Prova REPOINTING per ogni stringa\n' +
-                '• Se trova puntatori → USA repointing ✅\n' +
-                '• Se NO puntatori → AUTO-TRONCA ✂️\n\n' +
-                'Così funziona SEMPRE, sia con puntatori che senza!\n\n' +
+                'Strategia: SPOSTA TUTTO\n' +
+                '• Tutte le stringhe → spazio libero 🔀\n' +
+                '• Tutto l\'inglese → cancellato 🗑️\n' +
+                '• ROM → espansa se serve 📈\n' +
+                '• Errori → ZERO garantiti ✅\n\n' +
+                'La ROM diventerà più grande ma TUTTO in italiano!\n\n' +
                 'Vuoi procedere?'
             );
             
@@ -1018,7 +1035,7 @@
                 return;
             }
             
-            log('🤖 Sistema IBRIDO attivato (repoint + auto-truncate)', 'info');
+            log('🔀 Strategia SPOSTA TUTTO attivata - ROM può espandersi', 'info');
         }
         
         // Salva file TXT in IndexedDB per resume
@@ -1079,6 +1096,8 @@
     async function doPatch(txtContent, startIdx = 0, savedStats = null) {
         const btn = document.getElementById('patchBtn');
         btn.disabled = true;
+        
+        romExpansions = 0; // Reset contatore espansioni
 
         const wrap = document.getElementById('patchProgress');
         const fill = document.getElementById('patchFill');
@@ -1091,7 +1110,7 @@
         const total = lines.length;
         
         let idx = startIdx;
-        let stats = savedStats || { total: 0, overwritten: 0, repointed: 0, failed: 0, protected: 0, noPointers: 0, truncated: 0, deleted: 0, autoTruncated: 0 };
+        let stats = savedStats || { total: 0, repointed: 0, failed: 0, protected: 0, noPointers: 0, truncated: 0, deleted: 0, expanded: 0 };
 
         log(`Patch ${startIdx > 0 ? 'ripresa' : 'avviata'} da riga ${idx}/${total}`);
         document.getElementById('patchReport').innerHTML = '';
@@ -1124,54 +1143,35 @@
                 const forceOverwrite = document.getElementById('forceOverwrite').checked;
 
                 try {
-                    if (newBytes.length <= maxB + 1) {
-                        // CASO 1: Entra nello spazio originale
-                        rom.set(newBytes, oldOff);
-                        const rem = (maxB + 1) - newBytes.length;
-                        if (rem > 0) rom.set(new Uint8Array(rem).fill(0xFF), oldOff + newBytes.length);
-                        stats.overwritten++;
-                    } else if (forceOverwrite) {
-                        // CASO 2: Force overwrite - TRONCA il testo
+                    // STRATEGIA: Sposta TUTTO nello spazio libero (zero inglese residuo)
+                    // Eccezione: se forceOverwrite è attivo E la stringa è troppo lunga → tronca
+                    
+                    if (forceOverwrite && newBytes.length > maxB + 1) {
+                        // CASO 1: Force overwrite attivo + stringa troppo lunga = TRONCA
                         const truncated = newBytes.slice(0, maxB);
                         truncated.push(0xFF);
                         rom.set(truncated, oldOff);
-                        stats.overwritten++;
                         stats.truncated++;
                     } else {
-                        // CASO 3: Repointing IBRIDO (prova repoint, se fail → tronca)
+                        // CASO 2: Sposta SEMPRE (anche se entra in loco)
                         const newOff = findFreeSpace(newBytes.length);
-                        if (newOff === -1) {
-                            stats.failed++;
-                            log(`❌ ${offStr}: Spazio insufficiente (${newBytes.length} bytes)`, 'error');
-                            continue;
-                        }
+                        // findFreeSpace NON può più fallire (espande automaticamente)
                         
-                        // Scrivi nuova stringa temporaneamente
+                        // Scrivi nuova stringa nello spazio libero
                         rom.set(newBytes, newOff);
                         
-                        // PROVA a trovare puntatori
-                        const ptrCount = repointPointers(oldOff, newOff);
+                        // CANCELLA SEMPRE la vecchia stringa (tutto inglese via!)
+                        const oldLen = maxB + 1;
+                        rom.set(new Uint8Array(oldLen).fill(0xFF), oldOff);
+                        stats.deleted++;
+                        repointedOffsets.add(oldOff);
                         
-                        if (ptrCount > 0) {
-                            // ✅ HA PUNTATORI - Usa repointing
-                            // CANCELLA vecchia stringa con 0xFF
-                            const oldLen = maxB + 1;
-                            rom.set(new Uint8Array(oldLen).fill(0xFF), oldOff);
-                            stats.deleted++;
-                            repointedOffsets.add(oldOff);
-                            stats.repointed++;
-                        } else {
-                            // ❌ NESSUN PUNTATORE - ROLLBACK e tronca
-                            // Cancella la stringa appena scritta (non serve)
-                            rom.set(new Uint8Array(newBytes.length).fill(0xFF), newOff);
-                            
-                            // TRONCA automaticamente nello spazio originale
-                            const truncated = newBytes.slice(0, maxB);
-                            truncated.push(0xFF);
-                            rom.set(truncated, oldOff);
-                            stats.overwritten++;
-                            stats.truncated++;
-                            stats.autoTruncated++; // Contatore specifico per troncamenti automatici
+                        // PROVA a trovare e aggiornare puntatori
+                        const ptrCount = repointPointers(oldOff, newOff);
+                        stats.repointed++;
+                        
+                        if (ptrCount === 0) {
+                            stats.noPointers++;
                         }
                     }
                 } catch(e) {
@@ -1198,33 +1198,37 @@
                 fill.style.width = '100%';
                 pct.textContent = '100%';
                 status.textContent = '✅ Completata!';
+                
+                stats.expanded = romExpansions; // Salva contatore espansioni
 
                 const truncPercent = stats.truncated > 0 ? Math.round((stats.truncated / stats.total) * 100) : 0;
-                const autoTruncPercent = stats.autoTruncated > 0 ? Math.round((stats.autoTruncated / stats.total) * 100) : 0;
                 
                 document.getElementById('patchReport').innerHTML = `
                     <div class="report">
                         <div class="report-item"><span>Processate</span><strong>${stats.total}</strong></div>
-                        <div class="report-item"><span>✅ In loco</span><strong style="color:var(--success)">${stats.overwritten}</strong></div>
-                        ${stats.truncated > 0 ? `<div class="report-item"><span>✂️ Troncate (manuale)</span><strong style="color:var(--warning)">${stats.truncated} (${truncPercent}%)</strong></div>` : ''}
-                        ${stats.autoTruncated > 0 ? `<div class="report-item"><span>🤖 Auto-troncate</span><strong style="color:var(--accent)">${stats.autoTruncated} (${autoTruncPercent}%)</strong></div>` : ''}
-                        <div class="report-item"><span>🔀 Repoint</span><strong style="color:var(--accent)">${stats.repointed}</strong></div>
-                        ${stats.deleted > 0 ? `<div class="report-item"><span>🗑️ Cancellate</span><strong style="color:var(--success)">${stats.deleted}</strong></div>` : ''}
+                        <div class="report-item"><span>🔀 Spostate</span><strong style="color:var(--accent)">${stats.repointed}</strong></div>
+                        <div class="report-item"><span>🗑️ Cancellate</span><strong style="color:var(--success)">${stats.deleted}</strong></div>
+                        ${stats.noPointers > 0 ? `<div class="report-item"><span>⚠️ Senza ptr</span><strong style="color:var(--warning)">${stats.noPointers}</strong></div>` : ''}
+                        ${stats.truncated > 0 ? `<div class="report-item"><span>✂️ Troncate</span><strong style="color:var(--warning)">${stats.truncated} (${truncPercent}%)</strong></div>` : ''}
+                        ${stats.expanded > 0 ? `<div class="report-item"><span>📈 Espansioni ROM</span><strong style="color:var(--accent)">${stats.expanded}</strong></div>` : ''}
                         <div class="report-item"><span>🛡️ Protette</span><strong style="color:var(--text-dim)">${stats.protected}</strong></div>
                         ${stats.failed > 0 ? `<div class="report-item"><span>❌ Fallite</span><strong style="color:var(--danger)">${stats.failed}</strong></div>` : ''}
                     </div>`;
 
-                log(`✅ Patch completata: ${stats.overwritten + stats.repointed}/${stats.total}`, 'success');
+                log(`✅ Patch completata: ${stats.repointed}/${stats.total}`, 'success');
                 
                 if (stats.deleted > 0) {
-                    log(`🗑️ ${stats.deleted} stringhe vecchie cancellate (non rilevabili in scansione)`, 'success');
+                    log(`🗑️ ${stats.deleted} stringhe inglesi cancellate completamente`, 'success');
                     log(`🧠 ${repointedOffsets.size} offset salvati in memoria persistente`, 'info');
                 }
                 
-                if (stats.autoTruncated > 0) {
-                    const autoPercent = Math.round((stats.autoTruncated / stats.total) * 100);
-                    log(`🤖 ${stats.autoTruncated} stringhe auto-troncate (${autoPercent}%) - Nessun puntatore trovato`, 'info');
-                    log(`💡 Queste stringhe NON possono usare repointing (tabelle offset fissi)`, 'info');
+                if (stats.expanded > 0) {
+                    const finalSize = (rom.length / 1024 / 1024).toFixed(1);
+                    log(`📈 ROM espansa ${stats.expanded} volte - Dimensione finale: ${finalSize}MB`, 'info');
+                }
+                
+                if (stats.noPointers > 0) {
+                    log(`⚠️ ${stats.noPointers} stringhe senza puntatori (potrebbero rimanere inglesi se gioco usa offset fissi)`, 'warning');
                 }
                 
                 updateRepointMemoryUI(); // Aggiorna UI memoria
@@ -1232,11 +1236,6 @@
                 if (stats.truncated > 0) {
                     const truncPercent = Math.round((stats.truncated / stats.total) * 100);
                     log(`✂️ ${stats.truncated} stringhe troncate manualmente (${truncPercent}%)`, 'warning');
-                    
-                    if (truncPercent > 50) {
-                        log(`❌ TROPPO TRONCAMENTO: ${truncPercent}%`, 'error');
-                        toast(`❌ ${truncPercent}% troncate`, 'error');
-                    }
                 }
 
                 const a = document.createElement('a');

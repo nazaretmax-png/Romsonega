@@ -423,10 +423,108 @@ footer {
 }
 .fdot.on { background: var(--green); box-shadow: 0 0 6px var(--green); }
 
+/* ── Loan / Investment cards ─── */
+.fin-card {
+  background: var(--s1);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 13px 14px;
+  margin-bottom: 7px;
+  position: relative;
+}
+.fin-card.danger { border-color: rgba(217,80,80,.4); }
+.fin-card.good   { border-color: rgba(78,201,148,.35); }
+
+.fin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.fin-title {
+  font-family: var(--mono);
+  font-size: .7rem;
+  color: var(--txt);
+  font-weight: 700;
+}
+.fin-badge {
+  font-family: var(--mono);
+  font-size: .6rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.fin-badge.red  { background: rgba(217,80,80,.15);  border:1px solid rgba(217,80,80,.35);  color:var(--red); }
+.fin-badge.grn  { background: rgba(78,201,148,.12); border:1px solid rgba(78,201,148,.3);  color:var(--green); }
+.fin-badge.gld  { background: rgba(201,144,10,.12); border:1px solid rgba(201,144,10,.3);  color:var(--gold); }
+
+.fin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.fin-field { display: flex; flex-direction: column; gap: 4px; }
+.fin-label {
+  font-family: var(--mono);
+  font-size: .58rem;
+  color: var(--muted);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.fin-input {
+  background: var(--s2);
+  border: 1px solid var(--line2);
+  color: #fff;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: .82rem;
+  width: 100%;
+  min-height: 38px;
+  transition: border-color .14s;
+}
+.fin-input:focus { outline:none; border-color:var(--gold); }
+
+.fin-actions {
+  display: flex;
+  gap: 7px;
+  margin-top: 9px;
+}
+.fin-btn {
+  flex: 1;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  min-height: 36px;
+  transition: opacity .14s;
+}
+.fin-btn:active { opacity: .7; }
+.fin-btn-del  { background: rgba(217,80,80,.15);  border:1px solid rgba(217,80,80,.4);  color:var(--red); }
+.fin-btn-del:hover  { background: rgba(217,80,80,.25); }
+.fin-btn-zero { background: rgba(78,201,148,.1);  border:1px solid rgba(78,201,148,.35); color:var(--green); }
+.fin-btn-zero:hover { background: rgba(78,201,148,.2); }
+
+.fin-empty {
+  font-family: var(--mono);
+  font-size: .68rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 14px;
+  background: var(--s1);
+  border: 1px dashed var(--line2);
+  border-radius: var(--r);
+}
+
 @media (max-width: 420px) {
   .stat-grid.four { grid-template-columns: repeat(2, 1fr); }
   .btn-row { flex-direction: column; }
   .money-row { grid-template-columns: 1fr; }
+  .fin-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -435,7 +533,7 @@ footer {
 
 <header>
   <span class="logo">DL2 <em>Save</em> Editor</span>
-  <span class="ver">v3.0 — smart</span>
+  <span class="ver">v3.2 — smart</span>
 </header>
 
 <main>
@@ -547,6 +645,22 @@ footer {
       <div class="field-row">
         <div class="fr-label"><strong>Giorno corrente</strong>avanza nel calendario</div>
         <input class="fr-input" type="number" id="statDay" min="1" oninput="markDirty()">
+      </div>
+    </div>
+
+    <!-- PRESTITI -->
+    <div class="group">
+      <div class="group-title">🏦 &nbsp;prestiti</div>
+      <div id="loansContainer">
+        <div class="fin-empty">Nessun prestito attivo</div>
+      </div>
+    </div>
+
+    <!-- INVESTIMENTI -->
+    <div class="group">
+      <div class="group-title">📈 &nbsp;investimenti</div>
+      <div id="investContainer">
+        <div class="fin-empty">Nessun investimento attivo</div>
       </div>
     </div>
 
@@ -679,6 +793,10 @@ function populateEditor() {
   document.getElementById('statRent').value   = d.shop.baseShop.rentCost;
   document.getElementById('statWeekly').value = d.shop.baseShop.weeklyCost;
   document.getElementById('statDay').value    = d.day;
+
+  // Prestiti e investimenti
+  renderLoans();
+  renderInvestments();
 }
 
 /* ─── Preset soldi ─────────────────────────────── */
@@ -692,7 +810,146 @@ function onCashInput() {
 }
 
 /* ─── Dirty marker ─────────────────────────────── */
-function markDirty() { /* no-op visivo; salva al click */ }
+function markDirty() { /* salva tutto al click Applica */ }
+
+/* ─── Render Prestiti ──────────────────────────── */
+function renderLoans() {
+  const loans = saveData.loans || [];
+  const el = document.getElementById('loansContainer');
+  if (!loans.length) {
+    el.innerHTML = '<div class="fin-empty">Nessun prestito attivo</div>';
+    return;
+  }
+  el.innerHTML = loans.map((l, i) => {
+    const total    = l.value + l.interests;
+    const endDay   = l.startDay + l.durationInWeeks * 7;
+    const daysLeft = Math.max(0, endDay - (saveData.day || 0));
+    const weekly   = Math.round(total / l.durationInWeeks);
+    return `
+    <div class="fin-card danger">
+      <div class="fin-header">
+        <span class="fin-title">Prestito #${i+1}</span>
+        <span class="fin-badge red">${daysLeft} giorni rimasti</span>
+      </div>
+      <div class="fin-grid">
+        <div class="fin-field">
+          <span class="fin-label">Capitale</span>
+          <input class="fin-input" type="number" id="loan_val_${i}" value="${l.value}" min="0" oninput="markDirty()">
+        </div>
+        <div class="fin-field">
+          <span class="fin-label">Interessi (${Math.round(l.interests/l.value*100)}%)</span>
+          <input class="fin-input" type="number" id="loan_int_${i}" value="${l.interests}" min="0" oninput="markDirty()">
+        </div>
+        <div class="fin-field">
+          <span class="fin-label">Durata (settimane)</span>
+          <input class="fin-input" type="number" id="loan_dur_${i}" value="${l.durationInWeeks}" min="1" oninput="markDirty()">
+        </div>
+        <div class="fin-field">
+          <span class="fin-label">Giorno inizio</span>
+          <input class="fin-input" type="number" id="loan_start_${i}" value="${l.startDay}" min="1" oninput="markDirty()">
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:8px">
+        Totale da restituire: <span style="color:var(--red)">${fmtMoney(total)}</span> &nbsp;·&nbsp;
+        Rata settimanale: <span style="color:var(--gold)">${fmtMoney(weekly)}</span>
+      </div>
+      <div class="fin-actions">
+        <button class="fin-btn fin-btn-zero" onclick="cancelLoan(${i})">✓ Estingui subito</button>
+        <button class="fin-btn fin-btn-del"  onclick="deleteLoan(${i})">✕ Elimina</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function cancelLoan(i) {
+  // Azzera gli interessi e imposta durata minima → il prestito risulta già pagato
+  saveData.loans[i].interests = 0;
+  saveData.loans[i].value     = 0;
+  saveData.loans[i].durationInWeeks = 1;
+  saveData.loans[i].startDay  = saveData.day - 7;
+  renderLoans();
+  toast('Prestito estinto — il gioco lo rimuoverà al prossimo giorno', 'ok');
+}
+
+function deleteLoan(i) {
+  saveData.loans.splice(i, 1);
+  renderLoans();
+  toast('Prestito rimosso dal save', 'ok');
+}
+
+/* ─── Render Investimenti ──────────────────────── */
+function renderInvestments() {
+  const invs = saveData.investments || [];
+  const el = document.getElementById('investContainer');
+  if (!invs.length) {
+    el.innerHTML = '<div class="fin-empty">Nessun investimento attivo</div>';
+    return;
+  }
+  // risk: 1=Basso, 2=Medio, 3=Alto
+  const riskLabel = { 1:'Basso Rischio', 2:'Medio Rischio', 3:'Alto Rischio' };
+  const riskClass = { 1:'grn', 2:'gld', 3:'red' };
+  el.innerHTML = invs.map((inv, i) => {
+    const endDay   = inv.startDay + inv.durationInWeeks * 7;
+    const daysLeft = Math.max(0, endDay - (saveData.day || 0));
+    const rc = riskClass[inv.risk] || 'gld';
+    const rl = riskLabel[inv.risk] || `Rischio ${inv.risk}`;
+    // rendimento stimato: Basso ~10%, Medio ~25%, Alto ~50% (stime, il gioco è random)
+    const estPct  = { 1: 10, 2: 25, 3: 50 }[inv.risk] || 0;
+    const estGain = Math.round(inv.value * estPct / 100);
+    return `
+    <div class="fin-card good">
+      <div class="fin-header">
+        <span class="fin-title">Investimento #${i+1}</span>
+        <span class="fin-badge ${rc}">${rl}</span>
+      </div>
+      <div class="fin-grid">
+        <div class="fin-field">
+          <span class="fin-label">Importo investito</span>
+          <input class="fin-input" type="number" id="inv_val_${i}"
+            value="${inv.value}" min="0" oninput="markDirty()">
+        </div>
+        <div class="fin-field">
+          <span class="fin-label">Durata (settimane)</span>
+          <input class="fin-input" type="number" id="inv_dur_${i}"
+            value="${inv.durationInWeeks}" min="1" oninput="markDirty()">
+        </div>
+        <div class="fin-field">
+          <span class="fin-label">Giorno inizio</span>
+          <input class="fin-input" type="number" id="inv_start_${i}"
+            value="${inv.startDay}" min="1" oninput="markDirty()">
+        </div>
+        <div class="fin-field">
+          <span class="fin-label">Giorni rimasti</span>
+          <input class="fin-input" type="text" value="${daysLeft}" readonly
+            style="color:var(--muted);cursor:default">
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:8px">
+        Scade giorno <span style="color:var(--txt)">${endDay}</span> &nbsp;·&nbsp;
+        Guadagno stimato: <span style="color:var(--green)">~+${fmtMoney(estGain)}</span>
+        <span style="opacity:.5">(stima, il gioco calcola il valore esatto)</span>
+      </div>
+      <div class="fin-actions">
+        <button class="fin-btn fin-btn-zero" onclick="collectInvestment(${i})">💰 Incassa subito</button>
+        <button class="fin-btn fin-btn-del"  onclick="deleteInvestment(${i})">✕ Elimina</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function collectInvestment(i) {
+  // Sposta startDay indietro così durationInWeeks è già scaduta → il gioco incassa al prossimo giorno
+  const dur = saveData.investments[i].durationInWeeks;
+  saveData.investments[i].startDay = (saveData.day || 0) - dur * 7 - 1;
+  renderInvestments();
+  toast('Investimento: scaduto retroattivamente — incassi al prossimo avvio giorno', 'ok');
+}
+
+function deleteInvestment(i) {
+  saveData.investments.splice(i, 1);
+  renderInvestments();
+  toast('Investimento rimosso dal save', 'ok');
+}
 
 /* ─── Applica e scarica ────────────────────────── */
 function applyChanges() {
@@ -719,6 +976,21 @@ function applyChanges() {
   d.shop.baseShop.rentCost      = parseInt(document.getElementById('statRent').value)    || d.shop.baseShop.rentCost;
   d.shop.baseShop.weeklyCost    = parseInt(document.getElementById('statWeekly').value)  || d.shop.baseShop.weeklyCost;
   d.day = parseInt(document.getElementById('statDay').value) || d.day;
+
+  // Leggi campi prestiti modificati manualmente
+  (d.loans || []).forEach((l, i) => {
+    l.value          = parseInt(document.getElementById(`loan_val_${i}`)?.value)   ?? l.value;
+    l.interests      = parseInt(document.getElementById(`loan_int_${i}`)?.value)   ?? l.interests;
+    l.durationInWeeks= parseInt(document.getElementById(`loan_dur_${i}`)?.value)   ?? l.durationInWeeks;
+    l.startDay       = parseInt(document.getElementById(`loan_start_${i}`)?.value) ?? l.startDay;
+  });
+
+  // Leggi campi investimenti modificati manualmente
+  (d.investments || []).forEach((inv, i) => {
+    inv.value          = parseInt(document.getElementById(`inv_val_${i}`)?.value)   ?? inv.value;
+    inv.durationInWeeks= parseInt(document.getElementById(`inv_dur_${i}`)?.value)   ?? inv.durationInWeeks;
+    inv.startDay       = parseInt(document.getElementById(`inv_start_${i}`)?.value) ?? inv.startDay;
+  });
 
   // Serializza e cifra
   const json    = JSON.stringify(d);

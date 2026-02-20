@@ -481,6 +481,9 @@ footer {
           <span class="money-label">Saldo corrente</span>
           <span class="money-current" id="moneyDisplay">—</span>
         </div>
+        <p style="font-family:var(--mono);font-size:.6rem;color:var(--muted);margin-bottom:10px;line-height:1.5">
+          ⚠ Il gioco può mostrare ±qualche euro in più/meno per costi pendenti (affitto, transazioni in corso) — è normale.
+        </p>
         <div class="money-row">
           <div class="money-input-wrap">
             <input type="number" id="cashInput" placeholder="Nuovo importo" min="0" step="1"
@@ -636,7 +639,7 @@ function populateEditor() {
   document.getElementById('avatarEl').textContent = avatars[p.avatarId] || '🎰';
   document.getElementById('playerName').textContent = p.nickname || 'Giocatore';
   document.getElementById('metaDay').textContent  = d.day;
-  document.getElementById('metaDiff').textContent = ['Facile','Normale','Difficile'][d.difficulty] || d.difficulty;
+  document.getElementById('metaDiff').textContent = ['Normale','Facile','Difficile'][d.difficulty] ?? d.difficulty;
   document.getElementById('metaRep').textContent  = p.reputation;
 
   // Soldi
@@ -700,9 +703,9 @@ function applyChanges() {
   // Backup automatico prima del download
   downloadBackup();
 
-  // Download file modificato
-  dlBuffer(encoded, 'MODIFIED_' + fileName);
-  toast('✓ File modificato scaricato!', 'ok');
+  // Download file modificato — stesso nome originale per sostituzione diretta
+  dlBuffer(encoded, fileName);
+  toast('✓ Scaricato come "' + fileName + '" — sostituisci direttamente!', 'ok');
 
   // Aggiorna display soldi
   document.getElementById('moneyDisplay').textContent = fmtMoney(newCash);

@@ -533,7 +533,7 @@ footer {
 
 <header>
   <span class="logo">DL2 <em>Save</em> Editor</span>
-  <span class="ver">v3.3 — smart</span>
+  <span class="ver">v3.5 — smart</span>
 </header>
 
 <main>
@@ -567,7 +567,7 @@ footer {
       <div class="avatar" id="avatarEl">🎰</div>
       <div>
         <div class="player-name" id="playerName">—</div>
-        <div class="player-meta">Giorno <span id="metaDay">—</span> · Difficoltà <span id="metaDiff">—</span> · Rep. <span id="metaRep">—</span></div>
+        <div class="player-meta">Giorno <span id="metaDay">—</span> · <select id="metaDiff" oninput="saveData.difficulty=parseInt(this.value);markDirty()" style="background:transparent;border:none;color:var(--gold);font-family:var(--mono);font-size:.63rem;padding:0;cursor:pointer;appearance:none;-webkit-appearance:none"><option value="1">Facile</option><option value="2">Normale</option><option value="3">Difficile</option></select> · Rep. <span id="metaRep">—</span></div>
       </div>
     </div>
 
@@ -764,7 +764,7 @@ function populateEditor() {
   document.getElementById('avatarEl').textContent   = avatars[p.avatarId] || '🎰';
   document.getElementById('playerName').textContent = p.nickname || 'Giocatore';
   document.getElementById('metaDay').textContent    = d.day;
-  document.getElementById('metaDiff').textContent   = ['Normale','Facile','Difficile'][d.difficulty] ?? d.difficulty;
+  document.getElementById('metaDiff').value         = d.difficulty ?? 1;
   document.getElementById('metaRep').textContent    = p.reputation;
 
   // Nota cash breakdown

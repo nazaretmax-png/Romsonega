@@ -533,7 +533,7 @@ footer {
 
 <header>
   <span class="logo">DL2 <em>Save</em> Editor</span>
-  <span class="ver">v3.5 — smart</span>
+  <span class="ver">v3.6 — smart</span>
 </header>
 
 <main>
@@ -635,7 +635,17 @@ footer {
         <input class="fr-input" type="number" id="statBrain" min="0" oninput="markDirty()">
       </div>
       <div class="field-row">
-        <div class="fr-label"><strong>Affitto negozio</strong>costo mensile</div>
+        <div class="fr-label"><strong>Slot Dipendenti</strong>max personale reclutabile</div>
+        <input class="fr-input" type="number" id="statEmpSlots" min="1" max="99" oninput="markDirty()">
+      </div>
+      <div class="field-row">
+        <div class="fr-label"><strong>Slot Inventario</strong>oggetti max nel negozio</div>
+        <input class="fr-input" type="number" id="statInvSlots" min="1" max="99" oninput="markDirty()">
+      </div>
+      <div class="field-row">
+        <div class="fr-label"><strong>Slot Clienti</strong>clienti max simultanei</div>
+        <input class="fr-input" type="number" id="statCustSlots" min="1" max="99" oninput="markDirty()">
+      </div>
         <input class="fr-input wide" type="number" id="statRent" min="0" oninput="markDirty()">
       </div>
       <div class="field-row">
@@ -790,6 +800,9 @@ function populateEditor() {
   document.getElementById('statRep').value    = p.reputation;
   document.getElementById('statExpert').value = d.shop.expertCharges;
   document.getElementById('statBrain').value  = d.shop.brainwasherCharges;
+  document.getElementById('statEmpSlots').value  = d.shop.baseShop.employeeSlots;
+  document.getElementById('statInvSlots').value  = d.shop.baseShop.inventorySlots;
+  document.getElementById('statCustSlots').value = d.shop.baseShop.customerSlots;
   document.getElementById('statRent').value   = d.shop.baseShop.rentCost;
   document.getElementById('statWeekly').value = d.shop.baseShop.weeklyCost;
   document.getElementById('statDay').value    = d.day;
@@ -973,6 +986,9 @@ function applyChanges() {
   p.reputation = parseInt(document.getElementById('statRep').value)    || 0;
   d.shop.expertCharges          = parseInt(document.getElementById('statExpert').value)  || 0;
   d.shop.brainwasherCharges     = parseInt(document.getElementById('statBrain').value)   || 0;
+  d.shop.baseShop.employeeSlots = parseInt(document.getElementById('statEmpSlots').value)  || d.shop.baseShop.employeeSlots;
+  d.shop.baseShop.inventorySlots= parseInt(document.getElementById('statInvSlots').value)  || d.shop.baseShop.inventorySlots;
+  d.shop.baseShop.customerSlots = parseInt(document.getElementById('statCustSlots').value) || d.shop.baseShop.customerSlots;
   d.shop.baseShop.rentCost      = parseInt(document.getElementById('statRent').value)    || d.shop.baseShop.rentCost;
   d.shop.baseShop.weeklyCost    = parseInt(document.getElementById('statWeekly').value)  || d.shop.baseShop.weeklyCost;
   d.day = parseInt(document.getElementById('statDay').value) || d.day;

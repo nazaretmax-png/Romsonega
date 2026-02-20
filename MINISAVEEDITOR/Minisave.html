@@ -1,772 +1,847 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>DL2 Save Editor</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DL2 Save Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne+Mono&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --bg:        #0d0f14;
-      --surface:   #13161e;
-      --panel:     #1a1e2a;
-      --border:    #2a2f3d;
-      --accent:    #f0a500;
-      --accent2:   #e05c00;
-      --green:     #39ff9a;
-      --red:       #ff4757;
-      --text:      #c8d0e0;
-      --muted:     #5a6070;
-      --font-mono: 'Share Tech Mono', monospace;
-      --font-ui:   'Barlow Condensed', sans-serif;
-    }
+:root {
+  --bg:    #0B0B0B;
+  --s1:    #141414;
+  --s2:    #1C1C1C;
+  --line:  #242424;
+  --gold:  #C9900A;
+  --goldd: #A07005;
+  --txt:   #DDDBD4;
+  --muted: #4A4A46;
+  --green: #4EC994;
+  --red:   #D95050;
+  --blue:  #5899D4;
+  --mono:  'Syne Mono', monospace;
+  --sans:  'Syne', sans-serif;
+  --r:     6px;
+}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-ui);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px 16px 60px;
-    }
+html { font-size: 15px; }
 
-    /* Scanline overlay */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.06) 2px, rgba(0,0,0,.06) 4px);
-      pointer-events: none;
-      z-index: 999;
-    }
+body {
+  background: var(--bg);
+  color: var(--txt);
+  font-family: var(--sans);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-    /* Noise texture */
-    body::after {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 998;
-      opacity: 0.4;
-    }
+.shell {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
 
-    header {
-      width: 100%;
-      max-width: 720px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 28px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 18px;
-    }
+/* ── Header ─────────────────────────────────────── */
+header {
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
 
-    .logo {
-      width: 44px; height: 44px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 8px;
-      display: grid; place-items: center;
-      font-size: 22px;
-    }
+.logo {
+  font-family: var(--sans);
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+}
 
-    header h1 {
-      font-family: var(--font-ui);
-      font-size: 26px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #fff;
-    }
+.logo em { color: var(--gold); font-style: normal; }
 
-    header h1 span { color: var(--accent); }
+.ver {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
 
-    .badge {
-      margin-left: auto;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--muted);
-      padding: 4px 10px;
-      border-radius: 4px;
-      letter-spacing: 1px;
-    }
+/* ── Main ───────────────────────────────────────── */
+main {
+  flex: 1;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
 
-    .container {
-      width: 100%;
-      max-width: 720px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+/* ── Section ────────────────────────────────────── */
+.sec {
+  border-top: 1px solid var(--line);
+  padding: 20px 0;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: up .35s forwards;
+}
 
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 22px 24px;
-      position: relative;
-      overflow: hidden;
-    }
+.sec:nth-child(1){animation-delay:.04s}
+.sec:nth-child(2){animation-delay:.10s}
+.sec:nth-child(3){animation-delay:.16s}
+.sec:nth-child(4){animation-delay:.22s}
 
-    .card-title {
-      font-family: var(--font-ui);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 16px;
-    }
+@keyframes up { to { opacity:1; transform:translateY(0); } }
 
-    /* File drop zone */
-    .dropzone {
-      border: 2px dashed var(--border);
-      border-radius: 8px;
-      padding: 28px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color .2s, background .2s;
-      position: relative;
-    }
+.sec-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-    .dropzone:hover, .dropzone.dragover {
-      border-color: var(--accent);
-      background: rgba(240,165,0,.05);
-    }
+.sec-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
 
-    .dropzone input {
-      position: absolute; inset: 0;
-      opacity: 0; cursor: pointer; width: 100%; height: 100%;
-    }
+/* ── Drop ───────────────────────────────────────── */
+.drop {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: border-color .18s, background .18s;
+  background: var(--s1);
+}
 
-    .dropzone .dz-icon { font-size: 36px; margin-bottom: 8px; display: block; }
+.drop:hover, .drop.drag { border-color: var(--gold); background: var(--s2); }
 
-    .dropzone .dz-label {
-      font-size: 16px;
-      font-weight: 600;
-      color: #fff;
-    }
+.drop input {
+  position: absolute; inset: 0;
+  opacity: 0; width: 100%; height: 100%; cursor: pointer;
+}
 
-    .dropzone .dz-sub {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
+.drop svg {
+  display: block;
+  margin: 0 auto 10px;
+  opacity: .3;
+}
 
-    .file-info {
-      display: none;
-      align-items: center;
-      gap: 12px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-top: 12px;
-    }
+.drop-title {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--txt);
+}
 
-    .file-info .fi-icon { font-size: 24px; }
+.drop-sub {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
 
-    .file-info .fi-name {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      color: var(--green);
-    }
+/* ── File pill ──────────────────────────────────── */
+.pill {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: var(--s2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 10px 14px;
+  margin-top: 10px;
+}
 
-    .file-info .fi-size {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
+.pill.show { display: flex; }
 
-    /* Grid for fields */
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+.p-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 7px var(--green);
+  flex-shrink: 0;
+}
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+.p-name {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--green);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-    .field label {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
+.p-size {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  flex-shrink: 0;
+}
 
-    .field input, .field select {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      color: #fff;
-      border-radius: 6px;
-      padding: 10px 12px;
-      font-family: var(--font-mono);
-      font-size: 14px;
-      width: 100%;
-      transition: border-color .15s;
-      appearance: none;
-    }
+/* ── Fields ─────────────────────────────────────── */
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
-    .field input:focus, .field select:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
+.field { display: flex; flex-direction: column; gap: 5px; }
 
-    /* Options row */
-    .options-row {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
+.field-label {
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
 
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      color: var(--text);
-      user-select: none;
-    }
+input[type=number], input[type=text], select {
+  background: var(--s1);
+  border: 1px solid var(--line);
+  color: var(--txt);
+  border-radius: var(--r);
+  padding: 11px 12px;
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color .14s;
+  min-height: 44px;
+}
 
-    .checkbox-label input[type=checkbox] {
-      width: 16px; height: 16px;
-      accent-color: var(--accent);
-      cursor: pointer;
-    }
+input:focus, select:focus { outline: none; border-color: var(--gold); }
 
-    /* XOR section */
-    .xor-section {
-      display: none;
-      margin-top: 12px;
-      padding: 14px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-    }
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234A4A46' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 30px;
+  cursor: pointer;
+}
 
-    .xor-section.visible { display: block; }
+/* ── Toggle pills ───────────────────────────────── */
+.togs { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
 
-    .xor-section .note {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 8px;
-      line-height: 1.5;
-    }
+.tog {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--s1);
+  border: 1px solid var(--line);
+  border-radius: 30px;
+  padding: 7px 13px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  transition: border-color .14s, color .14s;
+  user-select: none;
+  min-height: 36px;
+}
 
-    /* Buttons */
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-    }
+.tog input { display: none; }
 
-    .btn {
-      flex: 1;
-      padding: 13px 18px;
-      border: none;
-      border-radius: 7px;
-      font-family: var(--font-ui);
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: transform .1s, opacity .15s;
-    }
+.knob {
+  width: 26px; height: 14px;
+  background: var(--line);
+  border-radius: 7px;
+  position: relative;
+  transition: background .14s;
+  flex-shrink: 0;
+}
 
-    .btn:active { transform: scale(.97); }
+.knob::after {
+  content: '';
+  position: absolute;
+  left: 2px; top: 2px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform .14s, background .14s;
+}
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #000;
-    }
+.tog.on { border-color: var(--gold); color: var(--txt); }
+.tog.on .knob { background: var(--gold); }
+.tog.on .knob::after { transform: translateX(12px); background: #fff; }
 
-    .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+/* ── XOR panel ──────────────────────────────────── */
+.xp {
+  display: none;
+  margin-top: 10px;
+  padding: 14px;
+  background: var(--s1);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  animation: up .2s;
+}
 
-    .btn-secondary {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
+.xp.show { display: block; }
 
-    .btn-secondary:disabled { opacity: 0.3; cursor: not-allowed; }
+.xp-note {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-top: 9px;
+}
 
-    .btn-green {
-      background: var(--green);
-      color: #000;
-    }
+/* ── Buttons ────────────────────────────────────── */
+.brow { display: flex; gap: 8px; }
 
-    /* Log */
-    .log-box {
-      background: #060809;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      height: 180px;
-      overflow-y: auto;
-      line-height: 1.7;
-    }
+.btn {
+  flex: 1;
+  border: none;
+  border-radius: var(--r);
+  padding: 13px 14px;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  min-height: 48px;
+  transition: opacity .14s, transform .1s, border-color .14s, color .14s;
+}
 
-    .log-box::-webkit-scrollbar { width: 4px; }
-    .log-box::-webkit-scrollbar-track { background: transparent; }
-    .log-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.btn:active { transform: scale(.97); }
 
-    .log-entry { display: flex; gap: 8px; }
-    .log-ts { color: var(--muted); min-width: 56px; }
-    .log-info { color: var(--green); }
-    .log-warn { color: var(--accent); }
-    .log-error { color: var(--red); }
-    .log-found { color: #66d9ff; }
+.btn-gold {
+  background: var(--gold);
+  color: #000;
+}
 
-    /* Hex preview */
-    .hex-preview {
-      display: none;
-      margin-top: 12px;
-      background: #060809;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--muted);
-      word-break: break-all;
-      line-height: 1.8;
-    }
+.btn-gold:hover { background: var(--goldd); }
+.btn-gold:disabled { opacity:.3; cursor:not-allowed; transform:none; }
 
-    .hex-preview .hl { color: var(--accent); font-weight: bold; }
-    .hex-preview-title {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
 
-    /* Result badges */
-    .result-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
+.btn-ghost:hover:not(:disabled) { border-color: var(--txt); color: var(--txt); }
+.btn-ghost:disabled { opacity:.3; cursor:not-allowed; transform:none; }
 
-    .result-badge {
-      background: rgba(102,217,255,.1);
-      border: 1px solid rgba(102,217,255,.3);
-      color: #66d9ff;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 4px;
-    }
+.btn-dl {
+  background: var(--s2);
+  border: 1px solid var(--line);
+  color: var(--txt);
+}
 
-    /* Status bar */
-    .statusbar {
-      width: 100%;
-      max-width: 720px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0 0;
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 1px;
-      font-family: var(--font-mono);
-      border-top: 1px solid var(--border);
-      margin-top: 8px;
-    }
+.btn-dl:hover:not(:disabled) { border-color: var(--green); color: var(--green); }
+.btn-dl:disabled { opacity:.3; cursor:not-allowed; transform:none; }
 
-    .status-dot {
-      display: inline-block;
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--muted);
-      margin-right: 6px;
-    }
+/* ── Terminal ───────────────────────────────────── */
+.term {
+  background: var(--s1);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+}
 
-    .status-dot.active { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.term-bar {
+  background: var(--s2);
+  border-bottom: 1px solid var(--line);
+  padding: 8px 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .pulsing { animation: pulse 1.2s infinite; }
+.dots { display: flex; gap: 5px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
 
-    @media (max-width: 500px) {
-      .grid { grid-template-columns: 1fr; }
-      .btn-row { flex-direction: column; }
-    }
-  </style>
+.term-title {
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  flex: 1;
+}
+
+.term-clr {
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  color: var(--muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  transition: color .14s;
+}
+
+.term-clr:hover { color: var(--txt); }
+
+.log {
+  padding: 11px 13px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  height: 158px;
+  overflow-y: auto;
+  line-height: 1.85;
+}
+
+.log::-webkit-scrollbar { width: 2px; }
+.log::-webkit-scrollbar-thumb { background: var(--line); }
+
+.lr { display: flex; gap: 10px; align-items: baseline; }
+.lt { color: var(--muted); flex-shrink: 0; font-size: .65rem; }
+.li { color: var(--green); }
+.lw { color: var(--gold); }
+.le { color: var(--red); }
+.lf { color: var(--blue); }
+
+/* ── Badges ─────────────────────────────────────── */
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  padding: 3px 9px;
+  border-radius: 3px;
+  background: rgba(88,153,212,.1);
+  border: 1px solid rgba(88,153,212,.22);
+  color: var(--blue);
+}
+
+/* ── Hex block ──────────────────────────────────── */
+.hexb {
+  display: none;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 11px 13px;
+  margin-top: 9px;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--muted);
+  word-break: break-all;
+  line-height: 2;
+}
+
+.hexb.show { display: block; }
+.hl { color: var(--gold); }
+
+/* ── Footer ─────────────────────────────────────── */
+footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.fstat {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+.fdot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: background .3s, box-shadow .3s;
+}
+
+.fdot.on { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+.fcopy {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  opacity: .45;
+  letter-spacing: 0.05em;
+}
+
+/* ── Responsive ─────────────────────────────────── */
+@media (max-width: 400px) {
+  .row3 { grid-template-columns: 1fr 1fr; }
+  .row3 .field:last-child { grid-column: 1/-1; }
+  .brow { flex-direction: column; }
+  .brow-dl { flex-direction: column; }
+}
+</style>
 </head>
 <body>
+<div class="shell">
 
-<header>
-  <div class="logo">🎰</div>
-  <h1>DL2 <span>Save</span> Editor</h1>
-  <div class="badge">v2.0-beta</div>
-</header>
+  <header>
+    <span class="logo">DL2 <em>Save</em> Editor</span>
+    <span class="ver">v2.0</span>
+  </header>
 
-<div class="container">
+  <main>
 
-  <!-- STEP 1: File -->
-  <div class="card">
-    <p class="card-title">// 01 — Carica File di Salvataggio</p>
-    <div class="dropzone" id="dropzone">
-      <input type="file" id="fileInput" accept=".dat,.sav">
-      <span class="dz-icon">📂</span>
-      <div class="dz-label">Trascina qui il file, oppure clicca</div>
-      <div class="dz-sub">Formati supportati: .dat · .sav</div>
-    </div>
-    <div class="file-info" id="fileInfo">
-      <div class="fi-icon">📄</div>
-      <div>
-        <div class="fi-name" id="fiName">—</div>
-        <div class="fi-size" id="fiSize">—</div>
-      </div>
-    </div>
-  </div>
+    <!-- 01 FILE -->
+    <div class="sec">
+      <div class="sec-label">01 &nbsp;file</div>
 
-  <!-- STEP 2: Parametri -->
-  <div class="card">
-    <p class="card-title">// 02 — Parametri di Ricerca</p>
-    <div class="grid">
-      <div class="field">
-        <label>Valore da cercare</label>
-        <input type="number" id="searchValue" placeholder="Es: 1250" step="any">
+      <div class="drop" id="drop">
+        <input type="file" id="fileInput" accept=".dat,.sav">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+          <rect x="3" y="3" width="28" height="28" rx="4" stroke="#DDDBD4" stroke-width="1.5"/>
+          <path d="M17 11v12M12 18l5 5 5-5" stroke="#DDDBD4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="drop-title">Trascina o seleziona il file</span>
+        <span class="drop-sub">savegame1.dat · .sav</span>
       </div>
-      <div class="field">
-        <label>Nuovo valore</label>
-        <input type="number" id="newValue" placeholder="Es: 9999999" step="any">
-      </div>
-      <div class="field">
-        <label>Formato dati</label>
-        <select id="dataFormat">
-          <option value="float64">Float64 (Double, 8 byte)</option>
-          <option value="float32">Float32 (Single, 4 byte)</option>
-          <option value="int32">Int32 (4 byte)</option>
-          <option value="int16">Int16 (2 byte)</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Endianness</label>
-        <select id="endian">
-          <option value="1">Little Endian (LE) ✓</option>
-          <option value="0">Big Endian (BE)</option>
-        </select>
+
+      <div class="pill" id="pill">
+        <div class="p-dot"></div>
+        <span class="p-name" id="pName">—</span>
+        <span class="p-size" id="pSize">—</span>
       </div>
     </div>
 
-    <div class="options-row">
-      <label class="checkbox-label">
-        <input type="checkbox" id="findAll">
-        Trova tutte le occorrenze
-      </label>
-      <label class="checkbox-label">
-        <input type="checkbox" id="useXor" onchange="toggleXor()">
-        Pre-elaborazione XOR
-      </label>
-      <label class="checkbox-label">
-        <input type="checkbox" id="autoBackup" checked>
-        Backup automatico (.bak)
-      </label>
-    </div>
+    <!-- 02 PARAMETRI -->
+    <div class="sec">
+      <div class="sec-label">02 &nbsp;parametri</div>
 
-    <!-- XOR settings -->
-    <div class="xor-section" id="xorSection">
-      <div class="grid">
+      <div class="row2" style="margin-bottom:10px">
         <div class="field">
-          <label>Chiave XOR (hex)</label>
-          <input type="text" id="xorKey" placeholder="Es: 0xFF oppure 0x5A" value="0xFF">
+          <span class="field-label">Valore attuale</span>
+          <input type="number" id="searchVal" placeholder="es. 1250" step="any">
+        </div>
+        <div class="field">
+          <span class="field-label">Nuovo valore</span>
+          <input type="number" id="newVal" placeholder="es. 9999999" step="any">
         </div>
       </div>
-      <p class="note">
-        ⚠️ Se il file è cifrato con XOR a chiave singola fissa, il buffer verrà
-        decodificato prima della ricerca e ri-codificato prima del download.
-        Usa un hex editor per identificare la chiave corretta.
-      </p>
-    </div>
-  </div>
 
-  <!-- STEP 3: Azione -->
-  <div class="card">
-    <p class="card-title">// 03 — Esecuzione</p>
-    <div class="btn-row">
-      <button class="btn btn-primary" id="btnSearch" onclick="findAndModify()" disabled>
-        🔍 Cerca &amp; Modifica
-      </button>
-      <button class="btn btn-secondary" id="btnClear" onclick="clearLog()">
-        ✕ Pulisci Log
-      </button>
-    </div>
+      <div class="row3">
+        <div class="field">
+          <span class="field-label">Formato</span>
+          <select id="fmt">
+            <option value="float64">Float64</option>
+            <option value="float32">Float32</option>
+            <option value="int32">Int32</option>
+            <option value="int16">Int16</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="field-label">Byte order</span>
+          <select id="endian">
+            <option value="1">Little-End.</option>
+            <option value="0">Big-End.</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="field-label">Occorrenze</span>
+          <select id="occ">
+            <option value="first">Prima</option>
+            <option value="all">Tutte</option>
+          </select>
+        </div>
+      </div>
 
-    <div style="margin-top: 14px;">
-      <div class="log-box" id="outputLog">
-        <div class="log-entry"><span class="log-ts">00:00:00</span><span class="log-info">Sistema pronto. Carica un file per iniziare.</span></div>
+      <div class="togs">
+        <label class="tog" id="togXor">
+          <input type="checkbox" id="useXor">
+          <span class="knob"></span>XOR decrypt
+        </label>
+        <label class="tog on" id="togBak">
+          <input type="checkbox" id="autoBak" checked>
+          <span class="knob"></span>Auto backup
+        </label>
+      </div>
+
+      <div class="xp" id="xp">
+        <div class="field" style="max-width:180px">
+          <span class="field-label">Chiave XOR (hex)</span>
+          <input type="text" id="xorKey" placeholder="0xFF" value="0xFF">
+        </div>
+        <p class="xp-note">
+          Decodifica XOR prima della ricerca,<br>
+          ri-codifica automaticamente prima del download.
+        </p>
       </div>
     </div>
 
-    <div class="result-row" id="resultRow"></div>
-
-    <!-- Hex preview -->
-    <div class="hex-preview" id="hexPreview">
-      <div class="hex-preview-title">// Hex Context</div>
-      <div id="hexContent"></div>
+    <!-- 03 ESECUZIONE -->
+    <div class="sec">
+      <div class="sec-label">03 &nbsp;esecuzione</div>
+      <div class="brow">
+        <button class="btn btn-gold" id="btnSearch" onclick="go()" disabled>
+          Cerca &amp; Modifica
+        </button>
+        <button class="btn btn-ghost" onclick="reset()" style="flex:0 0 auto;min-width:90px">
+          Reset
+        </button>
+      </div>
     </div>
 
-    <div class="btn-row" style="margin-top: 14px;">
-      <button class="btn btn-green" id="downloadBtn" onclick="downloadSave()" disabled>
-        ⬇ Scarica File Modificato
-      </button>
-      <button class="btn btn-secondary" id="downloadBak" onclick="downloadBackup()" disabled>
-        🗂 Scarica Backup .bak
-      </button>
+    <!-- 04 OUTPUT -->
+    <div class="sec">
+      <div class="sec-label">04 &nbsp;output</div>
+
+      <div class="term">
+        <div class="term-bar">
+          <div class="dots">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+          <span class="term-title">LOG</span>
+          <button class="term-clr" onclick="clrLog()">clear</button>
+        </div>
+        <div class="log" id="log">
+          <div class="lr">
+            <span class="lt">—</span>
+            <span class="li">Pronto. Carica un file per iniziare.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="badges" id="badges"></div>
+      <div class="hexb" id="hexb"></div>
+
+      <div class="brow brow-dl" style="margin-top:10px">
+        <button class="btn btn-dl" id="btnDl" onclick="dlSave()" disabled>
+          ↓ &nbsp;Scarica Modificato
+        </button>
+        <button class="btn btn-ghost" id="btnBak" onclick="dlBak()" disabled>
+          ↓ &nbsp;Backup .bak
+        </button>
+      </div>
     </div>
-  </div>
 
-</div>
+  </main>
 
-<div class="statusbar">
-  <div><span class="status-dot" id="statusDot"></span><span id="statusText">NESSUN FILE CARICATO</span></div>
-  <div id="statusRight">DL2 Save Editor © 2025</div>
+  <footer>
+    <div class="fstat">
+      <div class="fdot" id="fdot"></div>
+      <span id="fst">NESSUN FILE</span>
+    </div>
+    <span class="fcopy">DEALER'S LIFE 2</span>
+  </footer>
+
 </div>
 
 <script>
-  /* ─── Stato globale ─────────────────────────────────── */
-  let fileData     = null;   // Uint8Array (buffer attivo, può essere decodificato XOR)
-  let originalData = null;   // Uint8Array (copia originale grezzo del file)
-  let fileName     = '';
-  let isXorActive  = false;
-  let xorKeyValue  = 0xFF;
+let raw  = null;   // Uint8Array originale
+let work = null;   // Uint8Array modificato
+let name = '';
 
-  /* ─── Drag & Drop ───────────────────────────────────── */
-  const dropzone = document.getElementById('dropzone');
-  dropzone.addEventListener('dragover',  e => { e.preventDefault(); dropzone.classList.add('dragover'); });
-  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-  dropzone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropzone.classList.remove('dragover');
-    const f = e.dataTransfer.files[0];
-    if (f) loadFile(f);
+/* Drag & Drop */
+const drop = document.getElementById('drop');
+drop.addEventListener('dragover',  e => { e.preventDefault(); drop.classList.add('drag'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
+drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('drag'); const f = e.dataTransfer.files[0]; if(f) loadFile(f); });
+document.getElementById('fileInput').onchange = e => { const f = e.target.files[0]; if(f) loadFile(f); };
+
+function loadFile(file) {
+  name = file.name;
+  const r = new FileReader();
+  r.onload = ev => {
+    raw = new Uint8Array(ev.target.result);
+    work = null;
+    document.getElementById('pill').classList.add('show');
+    document.getElementById('pName').textContent = name;
+    document.getElementById('pSize').textContent = fmt(raw.length);
+    document.getElementById('btnSearch').disabled = false;
+    document.getElementById('btnBak').disabled    = false;
+    document.getElementById('btnDl').disabled     = true;
+    document.getElementById('badges').innerHTML   = '';
+    document.getElementById('hexb').classList.remove('show');
+    setStatus(fmt(raw.length), true);
+    lg('Caricato: ' + name + ' · ' + fmt(raw.length), 'i');
+  };
+  r.readAsArrayBuffer(file);
+}
+
+/* Toggles */
+document.querySelectorAll('.tog').forEach(t => {
+  const cb = t.querySelector('input');
+  const sync = () => t.classList.toggle('on', cb.checked);
+  cb.addEventListener('change', () => {
+    sync();
+    if (cb.id === 'useXor') document.getElementById('xp').classList.toggle('show', cb.checked);
+  });
+  sync();
+});
+
+/* Cerca & Modifica */
+function go() {
+  if (!raw) return;
+  const sv  = parseFloat(document.getElementById('searchVal').value);
+  const nv  = parseFloat(document.getElementById('newVal').value);
+  const f   = document.getElementById('fmt').value;
+  const le  = document.getElementById('endian').value === '1';
+  const all = document.getElementById('occ').value === 'all';
+  const xon = document.getElementById('useXor').checked;
+
+  if (isNaN(sv)) return alert('Inserisci il valore da cercare.');
+  if (isNaN(nv)) return alert('Inserisci il nuovo valore.');
+
+  let buf = new Uint8Array(raw);
+
+  if (xon) {
+    const k = parseInt(document.getElementById('xorKey').value, 16);
+    if (isNaN(k)) return alert('Chiave XOR non valida (es. 0xFF).');
+    buf = xorBuf(buf, k);
+    lg('XOR decode · chiave 0x' + k.toString(16).toUpperCase(), 'w');
+  }
+
+  const view = new DataView(buf.buffer);
+  const bl   = blen(f);
+  const hits = [];
+
+  lg('Ricerca ' + sv + ' come ' + f + ' (' + (le ? 'LE' : 'BE') + ')…', 'i');
+
+  for (let i = 0; i <= buf.length - bl; i++) {
+    const v = rval(view, i, f, le);
+    if (v !== null && Math.abs(v - sv) < 1e-6) {
+      hits.push(i);
+      if (!all) break;
+    }
+  }
+
+  document.getElementById('badges').innerHTML = '';
+  document.getElementById('hexb').classList.remove('show');
+
+  if (!hits.length) { lg('Nessun risultato. Prova formato diverso o abilita XOR.', 'e'); return; }
+
+  lg(hits.length + ' occorrenza/e trovate.', 'f');
+
+  hits.forEach((off, idx) => {
+    wval(view, off, f, le, nv);
+    lg('[' + (idx+1) + '] 0x' + off.toString(16).toUpperCase().padStart(8,'0') + '  ' + sv + ' → ' + nv, 'f');
+    const b = document.createElement('div');
+    b.className = 'badge';
+    b.textContent = '0x' + off.toString(16).toUpperCase();
+    document.getElementById('badges').appendChild(b);
+    if (idx === 0) showHex(buf, off, bl);
   });
 
-  document.getElementById('fileInput').onchange = function(e) {
-    const f = e.target.files[0];
-    if (f) loadFile(f);
-  };
-
-  function loadFile(file) {
-    fileName = file.name;
-    const reader = new FileReader();
-    reader.onload = function() {
-      originalData = new Uint8Array(reader.result);
-      fileData     = new Uint8Array(originalData); // copia di lavoro
-
-      // UI
-      document.getElementById('fileInfo').style.display = 'flex';
-      document.getElementById('fiName').textContent = fileName;
-      document.getElementById('fiSize').textContent  = formatBytes(fileData.length);
-      document.getElementById('btnSearch').disabled  = false;
-      document.getElementById('downloadBak').disabled = false;
-      setStatus('FILE CARICATO — ' + formatBytes(fileData.length), true);
-      log('File caricato: ' + fileName + ' (' + formatBytes(fileData.length) + ')', 'info');
-      document.getElementById('resultRow').innerHTML = '';
-      document.getElementById('hexPreview').style.display = 'none';
-      document.getElementById('downloadBtn').disabled = true;
-    };
-    reader.readAsArrayBuffer(file);
+  if (xon) {
+    const k2 = parseInt(document.getElementById('xorKey').value, 16);
+    work = xorBuf(new Uint8Array(view.buffer), k2);
+    lg('XOR re-encode applicato.', 'w');
+  } else {
+    work = new Uint8Array(view.buffer);
   }
 
-  /* ─── XOR toggle ────────────────────────────────────── */
-  function toggleXor() {
-    const on = document.getElementById('useXor').checked;
-    document.getElementById('xorSection').classList.toggle('visible', on);
+  document.getElementById('btnDl').disabled = false;
+  lg('Pronto per il download.', 'i');
+}
+
+/* Download */
+function dlSave() {
+  if (!work) return;
+  if (document.getElementById('autoBak').checked) dlBak();
+  dl(work, 'MODIFIED_' + name);
+  lg('Download: MODIFIED_' + name, 'i');
+}
+
+function dlBak() {
+  if (!raw) return;
+  dl(raw, name + '.bak');
+  lg('Backup: ' + name + '.bak', 'w');
+}
+
+function dl(data, fname) {
+  const url = URL.createObjectURL(new Blob([data], { type: 'application/octet-stream' }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: fname });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* Reset */
+function reset() {
+  raw = work = null; name = '';
+  document.getElementById('pill').classList.remove('show');
+  document.getElementById('btnSearch').disabled = true;
+  document.getElementById('btnDl').disabled     = true;
+  document.getElementById('btnBak').disabled    = true;
+  document.getElementById('badges').innerHTML   = '';
+  document.getElementById('hexb').classList.remove('show');
+  document.getElementById('fileInput').value    = '';
+  setStatus('NESSUN FILE', false);
+  clrLog();
+  lg('Reset completato.', 'i');
+}
+
+/* Hex preview */
+function showHex(buf, off, bl) {
+  const s = Math.max(0, off - 8);
+  const e = Math.min(buf.length, off + bl + 8);
+  let html = '';
+  for (let i = s; i < e; i++) {
+    const h = buf[i].toString(16).toUpperCase().padStart(2, '0');
+    html += (i >= off && i < off + bl)
+      ? '<span class="hl">' + h + ' </span>'
+      : h + ' ';
   }
+  const el = document.getElementById('hexb');
+  el.innerHTML = html;
+  el.classList.add('show');
+}
 
-  /* ─── Cerca & Modifica ──────────────────────────────── */
-  function findAndModify() {
-    if (!fileData) return alert('Carica prima un file!');
+/* DataView helpers */
+function rval(v, i, f, le) {
+  try {
+    if (f === 'float64') return v.getFloat64(i, le);
+    if (f === 'float32') return v.getFloat32(i, le);
+    if (f === 'int32')   return v.getInt32(i, le);
+    if (f === 'int16')   return v.getInt16(i, le);
+  } catch { return null; }
+}
 
-    const searchVal = parseFloat(document.getElementById('searchValue').value);
-    const newVal    = parseFloat(document.getElementById('newValue').value);
-    const format    = document.getElementById('dataFormat').value;
-    const le        = document.getElementById('endian').value === '1';
-    const findAll   = document.getElementById('findAll').checked;
-    const useXor    = document.getElementById('useXor').checked;
+function wval(v, i, f, le, n) {
+  if (f === 'float64') v.setFloat64(i, n, le);
+  if (f === 'float32') v.setFloat32(i, n, le);
+  if (f === 'int32')   v.setInt32(i, Math.round(n), le);
+  if (f === 'int16')   v.setInt16(i, Math.round(n), le);
+}
 
-    if (isNaN(searchVal)) return alert('Inserisci un valore di ricerca valido.');
-    if (isNaN(newVal))    return alert('Inserisci un nuovo valore valido.');
+function blen(f) { return { float64:8, float32:4, int32:4, int16:2 }[f] || 8; }
+function xorBuf(b, k) { const o = new Uint8Array(b.length); for(let i=0;i<b.length;i++) o[i]=b[i]^k; return o; }
 
-    // Clona buffer originale per ogni operazione
-    let workBuf = new Uint8Array(originalData);
+/* Log */
+function lg(msg, t='i') {
+  const el  = document.getElementById('log');
+  const ts  = new Date().toTimeString().slice(0,8);
+  const row = document.createElement('div');
+  row.className = 'lr';
+  row.innerHTML = `<span class="lt">${ts}</span><span class="l${t}">${msg}</span>`;
+  el.appendChild(row);
+  el.scrollTop = el.scrollHeight;
+}
 
-    // XOR decode
-    if (useXor) {
-      const keyStr = document.getElementById('xorKey').value.trim();
-      xorKeyValue  = parseInt(keyStr, 16);
-      if (isNaN(xorKeyValue)) return alert('Chiave XOR non valida. Usa formato hex: 0xFF');
-      workBuf = xorBuffer(workBuf, xorKeyValue);
-      log('XOR decode applicato con chiave 0x' + xorKeyValue.toString(16).toUpperCase(), 'warn');
-    }
+function clrLog() { document.getElementById('log').innerHTML = ''; }
 
-    const view  = new DataView(workBuf.buffer);
-    const byteLen = formatByteLen(format);
-    const offsets = [];
+/* Status */
+function setStatus(txt, on) {
+  document.getElementById('fst').textContent = txt;
+  document.getElementById('fdot').classList.toggle('on', on);
+}
 
-    log(`Ricerca valore ${searchVal} come ${format} (${le ? 'LE' : 'BE'})...`, 'info');
-
-    for (let i = 0; i <= workBuf.length - byteLen; i++) {
-      const v = readVal(view, i, format, le);
-      if (v !== null && Math.abs(v - searchVal) < 1e-6) {
-        offsets.push(i);
-        if (!findAll) break;
-      }
-    }
-
-    // Aggiorna badge risultati
-    const resultRow = document.getElementById('resultRow');
-    resultRow.innerHTML = '';
-
-    if (offsets.length === 0) {
-      log('Valore non trovato. Prova un formato diverso o abilita XOR.', 'error');
-      return;
-    }
-
-    log(`Trovate ${offsets.length} occorrenza/e.`, 'found');
-
-    offsets.forEach((off, idx) => {
-      writeVal(view, off, format, le, newVal);
-      log(`[${idx+1}] Offset 0x${off.toString(16).toUpperCase().padStart(8,'0')} → ${searchVal} → ${newVal}`, 'found');
-
-      const badge = document.createElement('div');
-      badge.className = 'result-badge';
-      badge.textContent = `0x${off.toString(16).toUpperCase()}`;
-      resultRow.appendChild(badge);
-
-      // Mostra hex context sul primo risultato
-      if (idx === 0) showHexPreview(workBuf, off, byteLen);
-    });
-
-    // XOR re-encode
-    if (useXor) {
-      const enc = xorBuffer(new Uint8Array(view.buffer), xorKeyValue);
-      fileData = enc;
-      log('XOR re-encode applicato.', 'warn');
-    } else {
-      fileData = new Uint8Array(view.buffer);
-    }
-
-    document.getElementById('downloadBtn').disabled = false;
-    log('Modifica completata. Pronto per il download.', 'info');
-  }
-
-  /* ─── Download ──────────────────────────────────────── */
-  function downloadSave() {
-    if (document.getElementById('autoBackup').checked) downloadBackup();
-    triggerDownload(fileData, 'MODIFIED_' + fileName);
-    log('File modificato scaricato: MODIFIED_' + fileName, 'info');
-  }
-
-  function downloadBackup() {
-    if (!originalData) return;
-    triggerDownload(originalData, fileName + '.bak');
-    log('Backup scaricato: ' + fileName + '.bak', 'warn');
-  }
-
-  function triggerDownload(data, name) {
-    const blob = new Blob([data], { type: 'application/octet-stream' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = name; a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
-
-  /* ─── Helper: leggi/scrivi valore ──────────────────── */
-  function readVal(view, i, format, le) {
-    try {
-      if (format === 'float64') return view.getFloat64(i, le);
-      if (format === 'float32') return view.getFloat32(i, le);
-      if (format === 'int32')   return view.getInt32(i, le);
-      if (format === 'int16')   return view.getInt16(i, le);
-    } catch { return null; }
-    return null;
-  }
-
-  function writeVal(view, i, format, le, val) {
-    if (format === 'float64') view.setFloat64(i, val, le);
-    if (format === 'float32') view.setFloat32(i, val, le);
-    if (format === 'int32')   view.setInt32(i, Math.round(val), le);
-    if (format === 'int16')   view.setInt16(i, Math.round(val), le);
-  }
-
-  function formatByteLen(format) {
-    return { float64: 8, float32: 4, int32: 4, int16: 2 }[format] || 8;
-  }
-
-  /* ─── XOR buffer ────────────────────────────────────── */
-  function xorBuffer(buf, key) {
-    const out = new Uint8Array(buf.length);
-    for (let i = 0; i < buf.length; i++) out[i] = buf[i] ^ key;
-    return out;
-  }
-
-  /* ─── Hex preview ───────────────────────────────────── */
-  function showHexPreview(buf, offset, byteLen) {
-    const start  = Math.max(0, offset - 8);
-    const end    = Math.min(buf.length, offset + byteLen + 8);
-    const slice  = buf.slice(start, end);
-    let html = '';
-    slice.forEach((b, i) => {
-      const absIdx = start + i;
-      const hex = b.toString(16).toUpperCase().padStart(2,'0');
-      if (absIdx >= offset && absIdx < offset + byteLen)
-        html += `<span class="hl">${hex} </span>`;
-      else
-        html += `${hex} `;
-    });
-    document.getElementById('hexContent').innerHTML = html;
-    document.getElementById('hexPreview').style.display = 'block';
-  }
-
-  /* ─── Log ───────────────────────────────────────────── */
-  function log(msg, type = 'info') {
-    const l  = document.getElementById('outputLog');
-    const ts = new Date().toTimeString().slice(0,8);
-    const entry = document.createElement('div');
-    entry.className = 'log-entry';
-    entry.innerHTML = `<span class="log-ts">${ts}</span><span class="log-${type}">${msg}</span>`;
-    l.appendChild(entry);
-    l.scrollTop = l.scrollHeight;
-  }
-
-  function clearLog() {
-    document.getElementById('outputLog').innerHTML = '';
-    document.getElementById('resultRow').innerHTML = '';
-    document.getElementById('hexPreview').style.display = 'none';
-  }
-
-  /* ─── Status bar ────────────────────────────────────── */
-  function setStatus(text, active = false) {
-    document.getElementById('statusText').textContent = text;
-    document.getElementById('statusDot').classList.toggle('active', active);
-  }
-
-  /* ─── Utils ─────────────────────────────────────────── */
-  function formatBytes(n) {
-    if (n < 1024) return n + ' B';
-    if (n < 1048576) return (n/1024).toFixed(1) + ' KB';
-    return (n/1048576).toFixed(2) + ' MB';
-  }
+/* Bytes */
+function fmt(n) {
+  if (n < 1024) return n + ' B';
+  if (n < 1048576) return (n/1024).toFixed(1) + ' KB';
+  return (n/1048576).toFixed(2) + ' MB';
+}
 </script>
-
 </body>
 </html>
